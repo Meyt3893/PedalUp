@@ -268,18 +268,6 @@ body:not(.nospeech) .opt{padding-left:42px;padding-right:42px}
 .ldlink{background:none;border:0;color:var(--muted);text-decoration:underline;text-underline-offset:3px;font-size:15px;font-weight:600;margin-top:2px;padding:4px 8px;min-height:36px}
 .g-ld .pad{margin-top:8px}
 .g-ld .pad button{height:52px}
-/* save code */
-.savecard .sbtns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
-.savecard .sbtns .big{margin-top:0;min-height:56px;font-size:17px}
-.codebox{direction:ltr;text-align:left;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:19px;font-weight:700;letter-spacing:.5px;line-height:1.45;word-break:break-all;background:rgba(7,12,23,.6);border:1.5px dashed var(--accent);border-radius:16px;padding:14px;margin-top:12px;color:var(--accent);-webkit-user-select:all;user-select:all}
-.savebtns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px}
-.savebtns .big{min-height:56px;font-size:17px;text-decoration:none;display:flex;align-items:center;justify-content:center}
-.big.ok{background:var(--good-bg);color:var(--good);border:1.5px solid var(--good);box-shadow:none}
-.saveinfo{color:var(--muted);margin:8px 0 0;font-size:15px}
-#loadInput{display:block;width:100%;min-height:96px;margin-top:12px;font:inherit;font-size:17px;direction:ltr;text-align:left;color:var(--ink);background:var(--card2);border:1.5px solid var(--line);border-radius:16px;padding:12px 14px;resize:vertical;outline:none;-webkit-user-select:text;user-select:text}
-#loadInput:focus{border-color:var(--accent)}
-.loadmsg{min-height:24px;margin-top:10px;font-weight:600;color:var(--warn)}
-.prize .savelink{margin-top:10px;font-size:15px;color:var(--muted);text-decoration:underline;padding:6px 10px}
 .sheet h2.h2s{padding-left:0}
 /* English */
 .en{direction:ltr;unicode-bidi:isolate;display:inline-block}
@@ -366,14 +354,6 @@ body:not(.nospeech) .opt{padding-left:42px;padding-right:42px}
     <button class="autobtn ttsonly" id="autoBtn">🗣&#xFE0F; הקראה אוטומטית: כבויה</button>
     <p class="ttsnote" id="ttsNote" style="display:none">🔇 ההקראה בקול לא זמינה במכשיר הזה (אין בו קול בעברית). אפשר להמשיך לשחק כרגיל.</p>
     <noscript><div class="noscript">כדי לשחק צריך להפעיל את החלקים האינטראקטיביים של הדף.</div></noscript>
-  </div>
-  <div class="card savecard">
-    <h2 class="h2s"><span>💾 שמירת התקדמות</span><button class="spk" id="spkSaveCard" aria-label="הקראה בקול" title="הקראה בקול">🔊</button></h2>
-    <p class="sub">ההתקדמות נשמרת לבד בחשבון אחרי כל תשובה. קוד שמירה הוא גיבוי נוסף, ואפשר להעביר לחשבון קוד שמירה ישן פעם אחת.</p>
-    <div class="sbtns">
-      <button class="big alt" id="btnSave">💾 קוד שמירה</button>
-      <button class="big alt" id="btnLoad">🔑 יש לי קוד שמירה</button>
-    </div>
   </div>
   <div class="card">
     <h2 class="h2s"><span>מה לומדים היום?</span><button class="spk" id="spkCat" aria-label="הקראה בקול" title="הקראה בקול">🔊</button></h2>
@@ -490,7 +470,6 @@ body:not(.nospeech) .opt{padding-left:42px;padding-right:42px}
     <h2 id="missTitle">כדאי לחזור על:</h2>
     <div class="missed" id="missList"></div>
   </div>
-  <button class="big alt" id="btnSaveSum">💾 שמירת התקדמות</button>
   <button class="big" id="btnAgain">סיבוב נוסף 🚴</button>
   <button class="big alt" id="btnMissed">מתרגלים את מה שהיה קשה</button>
   <button class="big alt" id="btnMenu">חזרה לתפריט</button>
@@ -506,32 +485,6 @@ body:not(.nospeech) .opt{padding-left:42px;padding-right:42px}
     <p id="prizeDesc"></p>
     <p style="font-size:14px">נוסף לציוד שלך במוסך!</p>
     <button class="big" id="btnPrizeOk">יאללה, ממשיכים!</button>
-    <button class="savelink" id="btnPrizeSave">💾 שומרים קוד, שהציוד לא ילך לאיבוד</button>
-  </div>
-</div>
-
-<div class="modal" id="mSave">
-  <div class="sheet">
-    <button class="iconbtn close" data-close="mSave" aria-label="סגירה"><svg viewBox="0 0 24 24" width="18" height="18"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg></button>
-    <h2 class="h2s" style="justify-content:flex-start"><span>💾 קוד השמירה שלך</span><button class="spk" id="spkSave" aria-label="הקראה בקול" title="הקראה בקול">🔊</button></h2>
-    <p class="sub">מעתיקים את הקוד ושומרים אותו, למשל בוואטסאפ. בפעם הבאה לוחצים על "יש לי קוד שמירה" ומדביקים אותו.</p>
-    <div class="codebox" id="saveCode"></div>
-    <p class="saveinfo" id="saveInfo"></p>
-    <div class="savebtns">
-      <button class="big" id="btnCopy">📋 העתקה</button>
-      <a class="big alt" id="btnWa" href="#" target="_blank" rel="noopener">💬 שליחה בוואטסאפ</a>
-    </div>
-  </div>
-</div>
-
-<div class="modal" id="mLoad">
-  <div class="sheet">
-    <button class="iconbtn close" data-close="mLoad" aria-label="סגירה"><svg viewBox="0 0 24 24" width="18" height="18"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg></button>
-    <h2 class="h2s" style="justify-content:flex-start"><span>🔑 יש לי קוד שמירה</span><button class="spk" id="spkLoad" aria-label="הקראה בקול" title="הקראה בקול">🔊</button></h2>
-    <p class="sub">מדביקים כאן את קוד השמירה, ולוחצים על "מחזירים את ההתקדמות".</p>
-    <textarea id="loadInput" rows="3" spellcheck="false" autocomplete="off" autocapitalize="off" placeholder="TB1-…" aria-label="קוד שמירה"></textarea>
-    <div class="loadmsg" id="loadMsg" aria-live="polite"></div>
-    <button class="big" id="btnLoadGo">מחזירים את ההתקדמות ✨</button>
   </div>
 </div>
 
@@ -559,7 +512,6 @@ body:not(.nospeech) .opt{padding-left:42px;padding-right:42px}
     <h2>⚙&#xFE0F; הגדרות</h2>
     <div class="setrow"><span>צלילים</span><button class="pill" id="setMute">פועלים</button></div>
     <div class="setrow ttsonly"><span>הקראה אוטומטית של כל שאלה</span><button class="pill" id="setAuto">כבויה</button></div>
-    <div class="setrow"><span>קוד שמירה</span><span style="display:flex;gap:6px"><button class="pill" id="setSave">💾 שמירה</button><button class="pill" id="setLoad">🔑 טעינה</button></span></div>
     <div class="setrow"><span>מחובר בתור <b id="setUser" dir="ltr"></b></span><button class="pill" id="setLogout">🚪 יציאה</button></div>
     <div class="setrow"><span>איפוס כל ההתקדמות<br><small class="sub">ציוד, שיאים ונושאים לחיזוק</small></span><button class="pill danger" id="setReset">איפוס</button></div>
   </div>
@@ -1811,7 +1763,7 @@ window.addEventListener("resize",function(){if(R&&state.playing)fitAll()});
 
 document.addEventListener("click",function(e){var b=e.target.closest(".spk");if(!b)return;e.stopPropagation();var t="";
   if(b.id==="spkQ")t=R&&R.q?qSpeech(R.q):"";else if(b.dataset.o!=null)t=R&&R.q?optSpeech(R.q.shown[+b.dataset.o]):"";
-  else if(b.id==="spkEx")t=explainSpeech();else if(b.id==="spkLd")t=ldStepSpeech();else if(b.id==="spkPrize")t=prizeSpeech();else if(b.id==="spkHello")t=helloSpeech();else if(b.id==="spkSaveCard")t=saveCardSpeech();else if(b.id==="spkCat")t=catSpeech();else if(b.id==="spkTrail")t=trailSpeech();else if(b.id==="spkIntro")t=introSpeech();else if(b.id==="spkSave")t=saveSpeech();else if(b.id==="spkLoad")t=loadSpeech();
+  else if(b.id==="spkEx")t=explainSpeech();else if(b.id==="spkLd")t=ldStepSpeech();else if(b.id==="spkPrize")t=prizeSpeech();else if(b.id==="spkHello")t=helloSpeech();else if(b.id==="spkCat")t=catSpeech();else if(b.id==="spkTrail")t=trailSpeech();else if(b.id==="spkIntro")t=introSpeech();
   else if(b.id==="spkTopics")t=topicsSpeech();else if(b.id==="spkSum")t=sumSpeech();
   say(t,b)},true);
 $("autoBtn").onclick=toggleAuto;$("setAuto").onclick=toggleAuto;
@@ -1889,44 +1841,8 @@ function applySave(o){
   $("mode").querySelectorAll("button").forEach(function(b){b.classList.toggle("on",b.dataset.m===state.mode)});
   save();syncAuto();syncMute();
 }
-function saveSummary(){var n=gearCount(),d=ENG().days.length;return "בקוד שמורים: "+store.total+" תשובות נכונות, "+n+" מתוך "+ITEMS.length+" פריטי ציוד, והרצף הכי ארוך: "+store.best+"."+(d?" במסלול האנגלית: "+d+" מתוך "+NST+" תחנות.":"")}
-function saveCardSpeech(){return "שמירת התקדמות. ההתקדמות נשמרת לבד בחשבון אחרי כל תשובה. קוד שמירה הוא גיבוי נוסף, ואפשר להעביר לחשבון קוד שמירה ישן פעם אחת. יש שני כפתורים: קוד שמירה, ויש לי קוד שמירה."}
-function saveSpeech(){return "קוד השמירה שלך. לוחצים על העתקה, ושומרים את הקוד, למשל בוואטסאפ. בפעם הבאה לוחצים על יש לי קוד שמירה, ומדביקים אותו. "+saveSummary()}
-function loadSpeech(){var m=$("loadMsg").textContent;return "יש לי קוד שמירה. מדביקים כאן את קוד השמירה, ולוחצים על מחזירים את ההתקדמות. אפשר להעביר קוד שמירה לחשבון רק פעם אחת."+(m?" "+spoken(m):"")}
-function openSave(){
-  close("mSettings");SV.code=makeCode();SV.since=0;SV.nudged=0;
-  $("saveCode").textContent=SV.code;$("saveInfo").textContent=saveSummary();
-  var cb=$("btnCopy");cb.textContent="📋 העתקה";cb.classList.remove("ok");
-  $("btnWa").href="https://wa.me/?text="+encodeURIComponent("💾 קוד השמירה של "+PLAYER+" במסע האופניים:\n"+SV.code);
-  open("mSave");if(store.autoRead)setTimeout(function(){say(saveSpeech(),$("spkSave"))},300);
-}
-function copyText(t){
-  function legacy(){var a=document.createElement("textarea");a.value=t;a.setAttribute("readonly","");a.style.cssText="position:fixed;top:0;left:0;opacity:0";document.body.appendChild(a);a.select();a.setSelectionRange(0,t.length);var ok=false;try{ok=document.execCommand("copy")}catch(e){}a.remove();return ok}
-  if(navigator.clipboard&&navigator.clipboard.writeText)return navigator.clipboard.writeText(t).then(function(){return true},function(){return legacy()});
-  return Promise.resolve(legacy());
-}
-$("btnCopy").onclick=function(){var b=this;copyText(SV.code).then(function(ok){
-  if(ok){b.textContent="✅ הועתק!";b.classList.add("ok");say("הועתק!",null)}
-  else{var r=document.createRange();r.selectNodeContents($("saveCode"));var s=getSelection();s.removeAllRanges();s.addRange(r);b.textContent="סמנו את הקוד והעתיקו";say("סמנו את הקוד, והעתיקו אותו.",null)}})};
-function openLoad(){close("mSettings");$("loadInput").value="";$("loadMsg").textContent="";open("mLoad");if(store.autoRead)setTimeout(function(){say(loadSpeech(),$("spkLoad"))},300);setTimeout(function(){$("loadInput").focus()},80)}
-function loadBad(t){$("loadMsg").textContent=t;say(t,null)}
-var LOADO=null;
-$("btnLoadGo").onclick=function(){
-  var v=$("loadInput").value,self=this;
-  if(!v.trim())return loadBad("קודם מדביקים את הקוד בתיבה 🙂");
-  var o=LOADO||readCode(v);LOADO=null;
-  if(!o)return loadBad("אופס, הקוד הזה לא עובד. אולי חסר בו חלק? מעתיקים אותו שוב, מההתחלה ועד הסוף, ומנסים שוב 🙂");
-  if(window.__cloud.claim&&!o._ok){$("loadMsg").textContent="רגע אחד…";return window.__cloud.claim(function(err){if(err)return loadBad(err);o._ok=1;LOADO=o;self.onclick()})}
-  if(R&&state.playing){clearTimer();state.playing=false}
-  applySave(o);SV.since=0;SV.nudged=0;close("mLoad");close("mSettings");show("sSetup");confetti(50);sBell();
-  var who=o.name||PLAYER,msg="✅ ההתקדמות של "+who+" חזרה! "+gearCount()+" פריטי ציוד במוסך";
-  toast(msg);clearTimeout(toast.t);toast.t=setTimeout(function(){$("toast").style.display="none"},3200);
-  say("יש! ההתקדמות של "+who+" חזרה. "+saveSummary().replace("בקוד שמורים","יש לך"),null);
-};
-function saveNudge(){return;if(SV.since>=10&&SV.since-SV.nudged>=10){SV.nudged=SV.since;toast("💾 טיפ: בסוף הסיבוב שומרים קוד");clearTimeout(toast.t);toast.t=setTimeout(function(){$("toast").style.display="none"},3000)}}
-$("btnSave").onclick=openSave;$("btnSaveSum").onclick=openSave;$("setSave").onclick=openSave;$("btnPrizeSave").onclick=openSave;
-$("btnLoad").onclick=openLoad;$("setLoad").onclick=openLoad;
 
+function saveNudge(){}
 window.__cloud={onSave:null,
   progress:function(){return {v:1,savedAt:Date.now(),cat:state.cat,store:store,
     settings:{mixed:state.mixed,topics:state.topics.slice(),tables:state.tables,len:state.len,mode:state.mode}}},
@@ -2076,12 +1992,6 @@ window.__cloud.onSave=function(){
   if(!token)return;dirty=true;
   try{ls(LOCAL+user,JSON.stringify(window.__cloud.progress()))}catch(e){}
   schedule();
-};
-window.__cloud.claim=function(cb){
-  rpc("pp_claim_import",{p_token:token}).then(function(j){
-    if(j&&j.ok)return cb(null);
-    cb(j&&j.error==="already_imported"?"כבר העברנו קוד שמירה לחשבון הזה. אפשר להעביר קוד רק פעם אחת 🙂":"משהו השתבש בחיבור. ננסה שוב בעוד רגע 🙏");
-  }).catch(function(){cb("אין חיבור לאינטרנט כרגע. ננסה שוב 🙏")});
 };
 ["topics","tables","len","mode"].forEach(function(id){var el=$(id);if(el)el.addEventListener("click",function(){window.__cloud.onSave()})});
 document.addEventListener("visibilitychange",function(){if(document.visibilityState==="hidden")flush(true)});
