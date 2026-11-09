@@ -360,7 +360,8 @@ body:not(.nospeech) .opt{padding-left:42px;padding-right:42px}
 <header>
   <div class="brand"><b>🚵 PedalUp</b><small>חשבון ואנגלית</small></div>
   <div class="hbtns">
-    <button class="iconbtn" id="btnGarage" aria-label="המוסך שלי" title="המוסך שלי">🧰</button>
+    <span class="ctag" id="classTag" style="display:none" title="הכיתה שלי"></span>
+    <button class="iconbtn" id="btnGarage" aria-label="ציוד שאספתי" title="ציוד שאספתי">🧰</button>
     <button class="iconbtn" id="btnMute" aria-label="צלילים" title="צלילים">🔔</button>
     <button class="iconbtn" id="btnLogout" aria-label="יציאה" title="יציאה">🚪</button>
     <button class="iconbtn" id="btnSettings" aria-label="הגדרות" title="הגדרות">⚙&#xFE0F;</button>
@@ -374,10 +375,17 @@ body:not(.nospeech) .opt{padding-left:42px;padding-right:42px}
   <div class="card" style="position:relative" id="helloCard">
     <button class="spk corner" id="spkHello" aria-label="הקראה בקול" title="הקראה בקול">🔊</button>
     <p class="hello padl" id="helloTxt">שלום 👋 מוכן לצאת לרכיבה?</p>
-    <p class="sub">כל תשובה נכונה מקדמת אותך במסלול, ועל כל 5 תשובות נכונות מקבלים פריט ציוד חדש לאופניים 🎁</p>
+    <p class="sub">כל תשובה נכונה נותנת נקודות, והנקודות מקדמות את האופניים שלך במסלול 🚲 בתחנות 🎁 שבדרך מקבלים ציוד חדש</p>
     <button class="autobtn ttsonly" id="autoBtn">🗣&#xFE0F; הקראה אוטומטית: כבויה</button>
     <p class="ttsnote" id="ttsNote" style="display:none">🔇 ההקראה בקול לא זמינה במכשיר הזה (אין בו קול בעברית). אפשר להמשיך לשחק כרגיל.</p>
     <noscript><div class="noscript">כדי לשחק צריך להפעיל את החלקים האינטראקטיביים של הדף.</div></noscript>
+  </div>
+  <div class="card" id="trackCard">
+    <h2 class="h2s"><span id="tcTitle">🚲 המסלול שלי</span></h2>
+    <div class="ctrack" id="myTrack"></div>
+    <p class="sub tcline" id="tcLine"></p>
+    <button class="big alt" id="btnTrackOpen">🚲 המסלול הכיתתי</button>
+    <button class="garagebtn" id="btnGarage2">🧰 ציוד שאספתי <span class="mini" id="miniGear"></span></button>
   </div>
   <div class="card">
     <h2 class="h2s"><span>מה לומדים היום?</span><button class="spk" id="spkCat" aria-label="הקראה בקול" title="הקראה בקול">🔊</button></h2>
@@ -388,13 +396,11 @@ body:not(.nospeech) .opt{padding-left:42px;padding-right:42px}
   </div>
   <div class="card" id="engCard" style="display:none">
     <h2 class="h2s"><span>🗺&#xFE0F; מסלול האנגלית</span><button class="spk" id="spkTrail" aria-label="הקראה בקול" title="הקראה בקול">🔊</button></h2>
-    <p class="sub">כל יום משימה קצרה של 5–10 דקות. מסיימים את המשימה – ומתקדמים תחנה במסלול.</p>
+    <p class="sub">משימות קצרות של 5–10 דקות. מסיימים משימה – והבאה נפתחת מיד. הנקודות מקדמות את האופניים במסלול 🚲</p>
     <p id="engStatus"></p>
-    <button class="big" id="btnMission">🚴 למשימה של היום</button>
+    <button class="big" id="btnMission">🚴 למשימה הבאה</button>
     <button class="big alt" id="btnReview">🔁 חזרה על מילים</button>
-    <div class="engbadges" id="engBadges"></div>
     <div id="engWeak" style="display:none;margin-top:12px"><b>מילים לחזק:</b><div class="weak" id="engWeakList"></div></div>
-    <div class="trail2" id="trail"></div>
   </div>
   <div class="card" id="mathCard">
     <h2 class="h2s"><span>על מה נתאמן היום?</span><button class="spk" id="spkTopics" aria-label="הקראה בקול" title="הקראה בקול">🔊</button></h2>
@@ -412,13 +418,7 @@ body:not(.nospeech) .opt{padding-left:42px;padding-right:42px}
     </div>
     <button class="big" id="btnStart">יוצאים לדרך! 🏁</button>
   </div>
-  <div class="card">
-    <div class="row">
-      <div class="tile"><b class="num" id="tGear">0/12</b><span>ציוד שאספתי</span></div>
-      <div class="tile"><b class="num" id="tBest">0</b><span>הרצף הכי ארוך</span></div>
-      <div class="tile"><b class="num" id="tTotal">0</b><span>תשובות נכונות</span></div>
-    </div>
-    <button class="garagebtn" id="btnGarage2">🧰 המוסך שלי <span class="mini" id="miniGear"></span></button>
+  <div class="card" id="weakCard" style="display:none">
     <div id="weakBox" style="display:none;margin-top:12px">
       <b>כדאי לחזק:</b>
       <div class="weak" id="weakList"></div>
@@ -487,18 +487,42 @@ body:not(.nospeech) .opt{padding-left:42px;padding-right:42px}
   </div>
   <button class="big" id="btnAgain">סיבוב נוסף 🚴</button>
   <button class="big alt" id="btnMissed">מתרגלים את מה שהיה קשה</button>
+  <button class="big alt" id="btnTrack">🚲 לראות את המסלול</button>
   <button class="big alt" id="btnMenu">חזרה לתפריט</button>
+</section>
+<!-- THE TRACK: the class's bikes, or one's own bike alone -->
+<section class="screen" id="sClass">
+  <div class="card">
+    <h2 class="h2s"><span id="clTitle">🚲 המסלול הכיתתי</span><button class="clref" id="clRefresh" aria-label="רענון" title="רענון">🔄</button></h2>
+    <p class="sub" id="clSub"></p>
+    <div class="ctrack" id="clTrack"></div>
+    <p class="clnote">כל תשובה נכונה, בחשבון ובאנגלית, נותנת נקודות שמקדמות את האופניים · 🎁 תחנת ציוד · 🏁 סוף סיבוב</p>
+  </div>
+  <div class="card" id="clListCard">
+    <h2>🏆 מי איפה במסלול</h2>
+    <ol class="cllist" id="clList"></ol>
+  </div>
+  <div class="card" id="clJoin">
+    <h2 id="clJoinH">הצטרפות לכיתה</h2>
+    <p class="sub" id="clJoinSub">את קוד הכיתה מקבלים מההורים או מהמורה. בכיתה רואים את כל החברים על אותו מסלול.</p>
+    <input id="clCode" class="clinput" maxlength="24" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="קוד כיתה" aria-label="קוד כיתה">
+    <button class="big" id="clGo">מצטרפים 🚲</button>
+    <div class="clmsg" id="clMsg" aria-live="polite"></div>
+    <button class="linkbtn" id="clLeave">יציאה מהכיתה</button>
+  </div>
+  <button class="linkbtn" id="clSwitch">🔁 החלפת כיתה</button>
+  <button class="big alt" id="clBack">חזרה לתפריט</button>
 </section>
 </div>
 
 <div class="modal" id="mPrize">
   <div class="sheet prize">
     <button class="spk corner" id="spkPrize" aria-label="הקראה בקול" title="הקראה בקול">🔊</button>
-    <div class="kicker">🎉 פרס חדש! 🎉</div>
+    <div class="kicker">🎁 הגעת לתחנת ציוד במסלול!</div>
     <div class="rays" id="prizeIcon"></div>
     <h3 id="prizeName"></h3>
     <p id="prizeDesc"></p>
-    <p style="font-size:14px">נוסף לציוד שלך במוסך!</p>
+    <p style="font-size:14px">נוסף לציוד שאספתי 🧰</p>
     <button class="big" id="btnPrizeOk">יאללה, ממשיכים!</button>
   </div>
 </div>
@@ -515,8 +539,9 @@ body:not(.nospeech) .opt{padding-left:42px;padding-right:42px}
 <div class="modal" id="mGarage">
   <div class="sheet">
     <button class="iconbtn close" data-close="mGarage" aria-label="סגירה"><svg viewBox="0 0 24 24" width="18" height="18"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg></button>
-    <h2>🧰 המוסך שלי</h2>
+    <h2>🧰 ציוד שאספתי</h2>
     <p class="sub" id="garageLine"></p>
+    <p class="sub">בכל תחנת 🎁 במסלול מקבלים ציוד חדש לאופניים</p>
     <div class="grid" id="garageGrid"></div>
   </div>
 </div>
@@ -527,6 +552,7 @@ body:not(.nospeech) .opt{padding-left:42px;padding-right:42px}
     <h2>⚙&#xFE0F; הגדרות</h2>
     <div class="setrow"><span>צלילים</span><button class="pill" id="setMute">פועלים</button></div>
     <div class="setrow ttsonly"><span>הקראה אוטומטית של כל שאלה</span><button class="pill" id="setAuto">כבויה</button></div>
+    <div class="setrow"><span>כיתה: <b id="setClass">בלי כיתה</b></span><button class="pill" id="setClassBtn">הצטרפות</button></div>
     <div class="setrow"><span>מחובר בתור <b id="setUser" dir="ltr"></b></span><button class="pill" id="setLogout">🚪 יציאה</button></div>
     <div class="setrow"><span>איפוס כל ההתקדמות<br><small class="sub">ציוד, שיאים ונושאים לחיזוק</small></span><button class="pill danger" id="setReset">איפוס</button></div>
   </div>
@@ -563,7 +589,11 @@ var KEY="pedalup_unused";
 var store={total:0,best:0,weak:{},topic:{},muted:false};
 
 function save(){if(window.__cloud&&window.__cloud.onSave)window.__cloud.onSave()}
-function gearCount(){return Math.min(ITEMS.length,Math.floor(store.total/5))}
+var GEARPTS=[150,400,650,900,1150,1400,1650,1900,2150,2400,2650,2900],TRACKLEN=1000;
+/* the bike's place on the track: the class's points since joining, or all of one's own points (track.html) */
+function trackPos(){return window.__cloud&&window.__cloud.trackPos?window.__cloud.trackPos():(store.points||0)}
+function gearCount(){var n=0,t=trackPos();GEARPTS.forEach(function(p){if(t>=p)n++});return Math.min(ITEMS.length,Math.max(store.gear||0,n))}
+function nextGearPts(){var n=gearCount();return n>=ITEMS.length?0:Math.max(1,GEARPTS[n]-trackPos())}
 
 /* ================= sound ================= */
 var ac=null;
@@ -995,8 +1025,8 @@ function qSpeech(q){
   return s.replace(/\.\s*\./g,".");
 }
 function explainSpeech(){return spoken($("fb").innerHTML)}
-function prizeSpeech(){return "פרס חדש! "+$("prizeName").textContent+". "+$("prizeDesc").textContent+" נוסף לציוד שלך במוסך!"}
-function helloSpeech(){return "פֶּדַל אַפּ. שלום "+PLAYER+"! מוכן לצאת לרכיבה? כל תשובה נכונה מקדמת אותך במסלול, ועל כל 5 תשובות נכונות מקבלים פריט ציוד חדש לאופניים. בחר נושא, ולחץ על יוצאים לדרך."}
+function prizeSpeech(){return "הגעת לתחנת ציוד במסלול! "+$("prizeName").textContent+". "+$("prizeDesc").textContent+" נוסף לציוד שאספתי!"}
+function helloSpeech(){return "פֶּדַל אַפּ. שלום "+PLAYER+"! מוכן לצאת לרכיבה? כל תשובה נכונה נותנת נקודות, והנקודות מקדמות את האופניים שלך במסלול. בתחנות הציוד שבדרך מקבלים ציוד חדש לאופניים. בחר נושא, ולחץ על יוצאים לדרך."}
 function topicsSpeech(){return "על מה נתאמן היום? אפשר לבחור: תרגול למבחן, עם כל הנושאים מעורבבים. או נושא אחד: "+TOPICS.map(function(t){return t.n}).join(", ")+"."}
 function sumSpeech(){var s=spoken($("sumTitle").textContent).replace(/[.!?]+$/,"")+"! "+spoken($("sumLine").innerHTML).replace(/[.!?]+$/,"")+". ";
   Object.keys(R.per).forEach(function(t){var p=R.per[t],n=p.c+p.w,a=n?p.c/n:0;s+=TBY[t].n+": "+p.c+" מתוך "+n+", "+(a>=.8?"הולך לך מצוין":a>=.5?"טוב, עוד קצת תרגול":"כדאי לתרגל עוד")+". "});
@@ -1075,15 +1105,15 @@ function judge(choice,timeout){
   if(ok){
     R.correct++;R.streak++;R.bestStreak=Math.max(R.bestStreak,R.streak);per.c++;ts.c++;
     var pts=q.tried?5:10+Math.min(10,(R.streak-1)*2);if(state.mode==="race")pts+=Math.ceil(Math.max(0,timerEnd-performance.now())/1000);
-    R.score+=pts;store.total++;SV.since++;if(R.streak>store.best)store.best=R.streak;
+    var g0=gearCount();R.score+=pts;store.points=(store.points||0)+pts;store.total++;SV.since++;if(R.streak>store.best)store.best=R.streak;
     if(q.key){store.weak[q.key]=Math.max(0,(store.weak[q.key]||0)-1);if(!store.weak[q.key])delete store.weak[q.key]}
     save();c.classList.add("good","pop");fb.className="fb good";
     fb.textContent=(q.tried?"יפה, תיקנת":PRAISE[Math.floor(Math.random()*PRAISE.length)]+NAME())+"!"+(R.streak>=3?" 🔥 "+R.streak+" ברצף":"")+"  +"+pts;
     paint();hop();sCorrect();updateHud();
-    var newPrize=store.total%5===0&&store.total/5<=ITEMS.length;
+    var g1=gearCount(),newPrize=g1>g0;if(newPrize){store.gear=g1;save()}
     setTimeout(function(){
-      if(newPrize)showPrize(store.total/5-1,afterCorrect);
-      else{if(store.total%5===0)toast("⭐ עוד 5 תשובות נכונות – כוכב אלוף!");else saveNudge();afterCorrect()}
+      if(newPrize)showPrize(g1-1,afterCorrect);
+      else afterCorrect()
     },q.kind==="mc"?900:q.kind==="ldiv"?1300:750);
   }else{
     R.streak=0;R.wrong++;per.w++;ts.w++;SV.since++;
@@ -1102,13 +1132,10 @@ function judge(choice,timeout){
 function afterCorrect(){if(R.correct>=R.target)finish();else nextQ()}
 function updateHud(){
   $("gScore").textContent=R.score;$("gStreak").textContent=R.streak;
-  var n=gearCount();$("gPrize").textContent=n>=ITEMS.length?"⭐":(5-store.total%5);
+  var n=gearCount();$("gPrize").textContent=n>=ITEMS.length?"⭐":nextGearPts()+" נק׳";
   var pr=Math.min(1,R.correct/R.target);$("trackFill").style.width=(pr*100)+"%";setBike(pr);
 }
-function placeGifts(){
-  var tr=$("track");tr.querySelectorAll(".gift").forEach(function(g){g.remove()});
-  for(var c=1;c<=R.target;c++){var tot=R.startTotal+c;if(tot%5===0&&tot/5<=ITEMS.length){var g=document.createElement("span");g.className="gift";g.textContent="🎁";g.style.right=(c/R.target*100)+"%";tr.appendChild(g)}}
-}
+function placeGifts(){}
 function finish(){
   clearTimer();stopSpeech();state.playing=false;sFinish();confetti(60);
   var total=R.correct+R.wrong,acc=total?Math.round(R.correct/total*100):0,done=R.correct>=R.target;
@@ -1144,7 +1171,7 @@ function showPrize(i,cb){prizeCb=cb;$("prizeIcon").innerHTML=icon(i);$("prizeNam
 function openGarage(){
   var n=gearCount();$("garageLine").textContent="נאספו "+n+" מתוך "+ITEMS.length+(n>=ITEMS.length?" – אספת הכול! 🏆":"");
   var g=$("garageGrid");g.innerHTML="";
-  ITEMS.forEach(function(it,i){var d=document.createElement("div"),lk=i>=n;d.className="item"+(lk?" locked":" got");d.innerHTML=icon(i)+"<div>"+it.n+"</div>"+(lk?(i===n?'<small>עוד '+(5*(i+1)-store.total)+' תשובות</small>':'<small style="color:var(--muted);font-weight:500">נעול</small>'):"");g.appendChild(d)});
+  ITEMS.forEach(function(it,i){var d=document.createElement("div"),lk=i>=n;d.className="item"+(lk?" locked":" got");d.innerHTML=icon(i)+"<div>"+it.n+"</div>"+(lk?(i===n?'<small>עוד '+nextGearPts()+' נקודות</small>':'<small style="color:var(--muted);font-weight:500">נעול</small>'):"");g.appendChild(d)});
   open("mGarage");
 }
 
@@ -1155,15 +1182,15 @@ function renderTopics(){
   $("topics").innerHTML=h;
 }
 function refreshSetup(){
-  var n=gearCount();$("tGear").textContent=n+"/"+ITEMS.length;$("tBest").textContent=store.best;$("tTotal").textContent=store.total;
-  var m="";for(var i=0;i<n;i++)m+=icon(i);$("miniGear").innerHTML=m||'<span class="sub" style="font-weight:500">עדיין ריק – בוא נתחיל!</span>';
+  var n=gearCount();var m="";for(var i=0;i<n;i++)m+=icon(i);$("miniGear").innerHTML=m||'<span class="sub" style="font-weight:500">התחנה הראשונה אחרי '+GEARPTS[0]+' נקודות</span>';
+  if(window.__cloud&&window.__cloud.track)window.__cloud.track();
   var weak=TOPICS.filter(function(t){var s=store.topic[t.id];return s&&s.w>=2&&s.w>=s.c*.35}).map(function(t){return "<span>"+t.ic+" "+t.n+"</span>"});
-  $("weakBox").style.display=weak.length?"block":"none";$("weakList").innerHTML=weak.join("");
+  $("weakBox").style.display=$("weakCard").style.display=weak.length?"block":"none";$("weakList").innerHTML=weak.join("");
   renderTopics();setCat(state.cat||"math");
 }
 
 /* ================= UI helpers ================= */
-function show(id){stopSpeech();["sSetup","sGame","sSum"].forEach(function(s){$(s).classList.toggle("on",s===id)});
+function show(id){stopSpeech();["sSetup","sGame","sSum","sClass"].forEach(function(s){$(s).classList.toggle("on",s===id)});
   document.body.classList.toggle("on-setup",id==="sSetup");
   if(id==="sSetup")refreshSetup();window.scrollTo(0,0)}
 function open(id){$(id).classList.add("on")}
@@ -1456,15 +1483,8 @@ function ENG(){if(!store.eng||!store.eng.sr)store.eng={days:[],sr:{}};return sto
 var EIV=[0,1,2,4,7,14,30,60];
 function eRec(i){return ENG().sr[i]}
 function eDue(i,t){var r=eRec(i);return r?(t-r.d)-EIV[r.l]:-99}
-/* how many new stations today: one per calendar day since the first, missed days may be caught up, at most 3 a day */
-function eAvail(){
-  var e=ENG(),n=e.days.length,t=eToday();
-  if(n>=NST)return {can:false,end:true,n:n};
-  if(!n)return {can:true,n:n};
-  var before=e.days.filter(function(d){return d<t}).length,todayN=n-before;
-  var allow=Math.min(3,Math.max(1,(t-e.days[0]+1)-before));
-  return {can:todayN<allow&&e.days[n-1]<=t,n:n,todayN:todayN};
-}
+/* the missions open one after another: finishing one opens the next at once */
+function eAvail(){var n=ENG().days.length;return n>=NST?{can:false,end:true,n:n}:{can:true,n:n}}
 
 /* ---------- questions ---------- */
 function EN(s){return '<span class="en" lang="en">'+s+'</span>'}
@@ -1613,45 +1633,30 @@ document.addEventListener("keydown",function(e){if(!R||!state.playing||!R.q||R.q
 /* the end of a mission */
 function engFinish(done){
   var x=R.eng,e=ENG(),adv=false;
-  $("btnAgain").textContent="חזרה למסלול 🗺\uFE0F";$("btnMissed").textContent="מתרגלים את מה שהיה קשה";
+  $("btnAgain").textContent="חזרה למשימות 🔤";$("btnMissed").textContent="מתרגלים את מה שהיה קשה";
   if(x.kind==="station"&&done&&x.si===e.days.length){e.days.push(eToday());adv=true;save()}
   var st=EST[x.si]||null;
   if(x.kind==="station"){
     $("sumTitle").textContent=done?(adv?"🎉 תחנה "+(x.si+1)+" הושלמה!":"כל הכבוד! עברת שוב על תחנה "+(x.si+1)):"המשימה עוד לא נגמרה – נמשיך בפעם הבאה";
-    if(adv){var nx=eAvail();$("sumLine").innerHTML=(x.si+1>=NST?"סיימת את כל המסלול! 👑":nx.can?"התחנה הבאה כבר פתוחה – אפשר להמשיך 🚴":"התחנה הבאה תיפתח מחר. נתראה! 🌙")}
+    if(adv){var nx=eAvail();$("sumLine").innerHTML=(x.si+1>=NST?"סיימת את כל המסלול! 👑":nx.can?"המשימה הבאה כבר פתוחה – אפשר להמשיך 🚴":"")}
   }else $("sumTitle").textContent=done?"🔁 חזרה מצוינת!":"החזרה הסתיימה – כל הכבוד על האימון!";
-  if(adv&&EMIL[x.si+1]){var m=EMIL[x.si+1];setTimeout(function(){showBadge(m[0],m[1],m[2])},900)}
-  else if(adv)setTimeout(function(){toast("🗺\uFE0F התקדמת במסלול: תחנה "+(x.si+1)+" ✅")},600);
 }
 function showBadge(em,n,d){prizeCb=null;$("prizeIcon").innerHTML='<div class="badge">'+em+'</div>';$("prizeName").textContent=n;$("prizeDesc").textContent=d;open("mPrize");sBell();confetti(90);if(store.autoRead)setTimeout(function(){say(prizeSpeech(),$("spkPrize"))},700)}
 
 /* ---------- the trail on the opening screen ---------- */
 function engStatus(){
   var e=ENG(),a=eAvail(),n=e.days.length,t=eToday();
-  if(a.end)return {txt:"סיימת את כל 36 התחנות! 👑 אפשר לחזור על מילים מתי שרוצים.",can:false};
-  if(a.can)return {txt:n?"תחנה "+(n+1)+" מתוך "+NST+": "+EST[n].n+". המשימה של היום מחכה! 🚴":"מתחילים! תחנה 1: "+EST[0].n,can:true};
-  return {txt:"✅ המשימה של היום הושלמה! תחנה "+(n+1)+" תיפתח מחר 🌙",can:false};
+  if(a.end)return {txt:"סיימת את כל המשימות באנגלית! 👑 אפשר לחזור על מילים מתי שרוצים.",can:false};
+  if(a.can)return {txt:n?"המשימה הבאה: "+EST[n].n+" 🚴":"מתחילים! המשימה הראשונה: "+EST[0].n,can:true};
 }
 function renderTrail(){
   var e=ENG(),n=e.days.length,a=eAvail(),cols=4,rows=Math.ceil(NST/cols),W=400,H=rows*92;
-  var pts=[];for(var i=0;i<NST;i++){var r=Math.floor(i/cols),c=i%cols;if(r%2)c=cols-1-c;pts.push([W-50-c*100,46+r*92])}
-  var path=pts.map(function(p,i){return (i?"L":"M")+p[0]+" "+p[1]}).join(" "),done=pts.slice(0,Math.min(n,NST-1)+1).map(function(p,i){return (i?"L":"M")+p[0]+" "+p[1]}).join(" ");
-  var h='<svg class="tpath" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none" aria-hidden="true"><path d="'+path+'" class="tp0"/>'+(n?'<path d="'+done+'" class="tp1"/>':'')+'</svg>';
-  pts.forEach(function(p,i){var cls=i<n?"done":i===n&&a.can?"cur":i===n?"next":"lock",mil=EMIL[i+1];
-    h+='<button class="tnode '+cls+(mil?" mil":"")+'" data-s="'+i+'" style="left:'+(p[0]/W*100)+'%;top:'+(p[1]/H*100)+'%" aria-label="תחנה '+(i+1)+': '+EST[i].n+'">'+
-      '<span class="ti2">'+(cls==="lock"?"🔒":EST[i].ic)+'</span><span class="tnum">'+(i+1)+'</span>'+(i<n?'<span class="tck"><svg viewBox="0 0 24 24" width="13" height="13"><path d="M4 12.5l5 5L20 6.5" stroke="currentColor" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"></path></svg></span>':'')+(i===n?'<span class="tbike">🚴</span>':'')+(mil?'<span class="tmil">'+mil[0]+'</span>':'')+'</button>'});
-  var tr=$("trail");tr.style.aspectRatio=W+"/"+H;tr.innerHTML=h;
   var s=engStatus();$("engStatus").textContent=s.txt;
   $("btnMission").style.display=s.can?"block":"none";
   $("btnReview").className="big"+(s.can?" alt":"");$("btnReview").style.display=n?"block":"none";
   var weak=EI.filter(function(it){var r=eRec(it.i);return it.t==="w"&&r&&r.l===0}).slice(0,8);
   $("engWeak").style.display=weak.length?"block":"none";$("engWeakList").innerHTML=weak.map(function(w){return "<span>"+EN(w.en)+" – "+w.he+"</span>"}).join("");
-  var got=Object.keys(EMIL).filter(function(k){return n>=+k}).map(function(k){return EMIL[k][0]+" "+EMIL[k][1]});
-  $("engBadges").textContent=got.length?"הישגים: "+got.join(" · "):"";
 }
-$("trail").addEventListener("click",function(e){var b=e.target.closest(".tnode");if(!b)return;var i=+b.dataset.s,n=ENG().days.length,a=eAvail();
-  if(i<n)openIntro(i,true);else if(i===n&&a.can)openIntro(i,false);
-  else if(i===n)toast("🌙 התחנה הזאת תיפתח מחר");else toast("🔒 קודם עוברים את התחנות שלפניה")});
 $("btnMission").onclick=function(){var n=ENG().days.length;if(eAvail().can)openIntro(n,false)};
 $("btnReview").onclick=function(){ctx();engStart("review",null)};
 
@@ -1796,13 +1801,17 @@ function applySave(o){
 }
 
 function saveNudge(){}
-window.__cloud={onSave:null,
+window.__cloud={onSave:null,show:show,icon:icon,gearCount:gearCount,GEARPTS:GEARPTS,TRACKLEN:TRACKLEN,ITEMS:ITEMS,
+  points:function(){return store.points||0},refresh:function(){refreshSetup()},
   progress:function(){return {v:1,savedAt:Date.now(),cat:state.cat,store:store,
     settings:{mixed:state.mixed,topics:state.topics.slice(),len:state.len,mode:state.mode}}},
   enter:function(name,p){
     PLAYER=name||"";$("helloTxt").textContent="שלום "+PLAYER+" 👋 מוכן לצאת לרכיבה?";$("setUser").textContent=PLAYER;
     var keep=store.muted;store={total:0,best:0,weak:{},topic:{},muted:!!keep};
     if(p&&p.store)for(var k in p.store)store[k]=p.store[k];
+    /* a save from before points: 10 for each correct answer so far, and the gear earned the old way stays */
+    if(typeof store.points!=="number")store.points=(store.total||0)*10;
+    if(typeof store.gear!=="number")store.gear=Math.min(ITEMS.length,Math.floor((store.total||0)/5));
     var tp={};if(store.topic)for(var t in store.topic)if(TBY[t])tp[t]=store.topic[t];store.topic=tp;store.weak={};
     var s=p&&p.settings;state.mixed=true;state.topics=[];state.len=20;state.mode="calm";
     if(s){if(Array.isArray(s.topics))state.topics=s.topics.filter(function(id){return TBY[id]});state.mixed=s.mixed!==false||!state.topics.length;if(state.mixed)state.topics=[];
@@ -1869,6 +1878,9 @@ window.__game={eng:{EI:EI,EW:EW,EST:EST,ES:ES,ENG:ENG,avail:eAvail,today:eToday,
       <div class="only-new">
         <label for="gKid">שם הילד</label>
         <input id="gKid" maxlength="30" autocomplete="off">
+        <label for="gClass">קוד כיתה <small style="font-weight:500;color:var(--muted)">(לא חובה)</small></label>
+        <input id="gClass" maxlength="24" autocomplete="off" autocapitalize="characters" spellcheck="false">
+        <div class="lhint">מי שקיבל קוד מהכיתה – כותבים אותו כאן, ורוכבים יחד על המסלול הכיתתי 🚲</div>
       </div>
       <button class="lbtn" id="gGo" type="submit">נכנסים 🏁</button>
       <div class="lmsg" id="gMsg" aria-live="polite"></div>
@@ -1879,7 +1891,7 @@ window.__game={eng:{EI:EI,EW:EW,EST:EST,ES:ES,ENG:ENG,avail:eAvail,today:eToday,
 (function(){
 var CFG=window.PEDALUP_CFG||{},SESS="pedalup_session",LOCAL="pedalup_local_";
 var $=function(id){return document.getElementById(id)};
-var gate=$("gate"),uI=$("gUser"),pI=$("gPass"),kI=$("gKid"),msg=$("gMsg"),go=$("gGo");
+var gate=$("gate"),uI=$("gUser"),pI=$("gPass"),kI=$("gKid"),cI=$("gClass"),msg=$("gMsg"),go=$("gGo");
 var token=null,user=null,timer=null,dirty=false,busy=false,saving=false;
 function say(t,ok){msg.textContent=t||"";msg.className="lmsg"+(ok?" ok":"")}
 function ls(k,v){try{if(v===undefined)return localStorage.getItem(k);if(v===null)localStorage.removeItem(k);else localStorage.setItem(k,v)}catch(e){return null}}
@@ -1902,13 +1914,16 @@ function newest(server){
 }
 function enter(j){
   token=j.token||token;user=j.username;ls(SESS,token);
+  window.__cloud.setClass(j.class,j.class_points,j.child_name);
   window.__cloud.enter(j.child_name,newest(j.progress||null));
+  window.__cloud.syncBase();
   uI.value=user;gate.classList.add("off");gate.classList.remove("wait");
   if(dirty)schedule();
 }
 var ERR={bad_login:"שם המשתמש או הסיסמה לא נכונים. ננסה שוב 🙂",taken:"שם המשתמש הזה כבר תפוס. בוחרים שם אחר 🙂",
   bad_username:"שם משתמש: 3 עד 20 אותיות או מספרים, בלי רווחים",bad_password:"הסיסמה צריכה להיות לפחות 4 תווים 🔒",
-  bad_name:"מה השם של הילד? ✍️",busy:"יש עכשיו הרבה הרשמות. ננסה שוב בעוד כמה דקות 🙏"};
+  bad_name:"מה השם של הילד? ✍️",bad_class:"קוד הכיתה לא מוכר. בודקים שוב, או משאירים ריק ומצטרפים אחר כך בהגדרות 🙂",
+  class_busy:"היו יותר מדי ניסיונות של קוד כיתה. ננסה שוב בעוד כמה דקות ⏳",busy:"יש עכשיו הרבה הרשמות. ננסה שוב בעוד כמה דקות 🙏"};
 function submit(){
   var isNew=gate.classList.contains("new"),u=uI.value.trim().toLowerCase(),p=pI.value,k=kI.value.trim();
   if(!u){say("מה שם המשתמש? ✍️");uI.focus();return}
@@ -1916,11 +1931,12 @@ function submit(){
   if(p.length<(isNew?4:1)){say(isNew?ERR.bad_password:"מה הסיסמה? 🔒");pI.focus();return}
   if(isNew&&!k){say(ERR.bad_name);kI.focus();return}
   busy=true;go.disabled=true;say("רגע אחד…",true);
-  var call=isNew?rpc("pp_register",{p_username:u,p_password:p,p_child_name:k}):rpc("pp_login",{p_username:u,p_password:p});
+  var call=isNew?rpc("pp_register",{p_username:u,p_password:p,p_child_name:k,p_class:cI.value.trim()||null}):rpc("pp_login",{p_username:u,p_password:p});
   call.then(function(j){
     busy=false;go.disabled=false;
-    if(j&&j.ok){say("");pI.value="";kI.value="";enter(j);return}
+    if(j&&j.ok){say("");pI.value="";kI.value="";cI.value="";enter(j);return}
     var e=j&&j.error;
+    if(e==="bad_class"){say(ERR[e]);cI.focus();return}
     if(e==="locked"){say("היו יותר מדי ניסיונות. מחכים "+(j.wait||5)+" דקות ומנסים שוב ⏳");return}
     if(e==="bad_login"){pI.value="";pI.focus()}
     say(ERR[e]||"משהו השתבש בחיבור. ננסה שוב בעוד רגע 🙏");
@@ -1929,15 +1945,18 @@ function submit(){
 $("gForm").addEventListener("submit",function(e){e.preventDefault();if(!busy)submit()});
 
 /* saving: every save() of the game lands here; a short pause gathers a burst into one write */
+var pending=null;
 function flush(keep){
-  if(!token||!dirty||saving)return;dirty=false;clearTimeout(timer);saving=true;
+  if(!token||!dirty||saving)return pending||Promise.resolve();dirty=false;clearTimeout(timer);saving=true;
   var p=window.__cloud.progress();
-  rpc("pp_save",{p_token:token,p_progress:p},keep).then(function(j){saving=false;
-    if(j&&j.ok){if(dirty)schedule();return}
+  return pending=rpc("pp_save",{p_token:token,p_progress:p},keep).then(function(j){saving=false;pending=null;
+    if(j&&j.ok){window.__cloud.saved(j.class_points,p.store.points||0);if(dirty)schedule();return}
     if(j&&j.error==="no_session"){dirty=true;expired();return}
     dirty=true;timer=setTimeout(flush,8000);
-  }).catch(function(){saving=false;dirty=true;timer=setTimeout(flush,8000)});
+  }).catch(function(){saving=false;pending=null;dirty=true;timer=setTimeout(flush,8000)});
 }
+window.__cloud.rpc=rpc;window.__cloud.token=function(){return token};
+window.__cloud.flushNow=function(){return flush(false)};
 function schedule(){clearTimeout(timer);timer=setTimeout(flush,1200)}
 window.__cloud.onSave=function(){
   if(!token)return;dirty=true;
@@ -1947,12 +1966,12 @@ window.__cloud.onSave=function(){
 ["topics","tables","len","mode"].forEach(function(id){var el=$(id);if(el)el.addEventListener("click",function(){window.__cloud.onSave()})});
 document.addEventListener("visibilitychange",function(){if(document.visibilityState==="hidden")flush(true)});
 window.addEventListener("pagehide",function(){flush(true)});
-function expired(){token=null;ls(SESS,null);window.__cloud.leave();showGate();say("צריך להיכנס שוב 🙂",true)}
+function expired(){token=null;ls(SESS,null);window.__cloud.leave();window.__cloud.setClass(null,0,"");showGate();say("צריך להיכנס שוב 🙂",true)}
 window.__cloud.logout=function(){
   if(dirty&&token)flush(true);
   var t=token;token=null;ls(SESS,null);
   if(t)rpc("pp_logout",{p_token:t},true).catch(function(){});
-  window.__cloud.leave();mode(false);showGate();
+  window.__cloud.leave();window.__cloud.setClass(null,0,"");mode(false);showGate();
 };
 
 /* resume the saved session after a reload */
@@ -1962,6 +1981,143 @@ var t=ls(SESS);
 if(t){token=t;rpc("pp_load",{p_token:t}).then(function(j){if(j&&j.ok){user=j.username;enter(j)}else{token=null;ls(SESS,null);showGate()}})
   .catch(function(){token=null;showGate();say("אין חיבור לאינטרנט כרגע. ננסה שוב 🙏")})}
 else showGate();
+})();
+</script>
+
+<style>
+.ctag{display:grid;place-items:center;min-width:44px;height:44px;padding:0 10px;border-radius:14px;background:rgba(182,242,58,.12);border:1px solid rgba(182,242,58,.45);color:var(--accent);font-weight:800;font-size:16px;white-space:nowrap}
+.ctrack{margin-top:6px;border-radius:16px;overflow:hidden;background:#0b1326;border:1px solid var(--line)}
+.ctrack svg{display:block;width:100%;height:auto}
+.tcline{margin-top:10px}
+.clnote{color:var(--muted);font-size:13px;margin:10px 0 0;line-height:1.45}
+.cllist{list-style:none;margin:0;padding:0}
+.cllist li{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:14px;margin-top:6px;background:rgba(255,255,255,.04);border:1px solid var(--line)}
+.cllist li.me{border-color:var(--accent);background:rgba(182,242,58,.10)}
+.cllist .rk{width:30px;text-align:center;font-weight:800;color:var(--muted);flex:none}
+.cllist .nm{flex:1;font-weight:700;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cllist .pt{font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums;white-space:nowrap}
+.cllist .pt small{color:var(--muted);font-weight:500}
+.clinput{width:100%;box-sizing:border-box;font:inherit;color:var(--ink);background:var(--card2);border:1.5px solid var(--line);border-radius:14px;padding:13px 16px;font-size:20px;outline:none;margin-top:12px;text-align:center;letter-spacing:1px;-webkit-user-select:text;user-select:text}
+.clinput:focus{border-color:var(--accent)}
+.clmsg{min-height:22px;margin-top:10px;font-size:16px;color:var(--warn);text-align:center}
+.clmsg.ok{color:var(--good)}
+.clref{width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid var(--line);display:grid;place-items:center;font-size:17px;flex:none}
+.linkbtn{display:block;margin:12px auto 0;color:var(--muted);font-size:15px;text-decoration:underline;padding:6px 10px}
+</style>
+<script>
+/* PedalUp track: one's bike moves with one's points; in a class, everyone's bikes on one road.
+   The bike's place is the class's points since joining (the server counts them on each save), or one's own points. */
+(function(){
+var C=window.__cloud,$=function(id){return document.getElementById(id)};
+var cls=null,cp=0,ptsBase=null,kid="",board=null,leaveArm=false;
+function esc(t){return String(t).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function short(n){n=String(n||"");return n.length>9?n.slice(0,8)+"…":n}
+C.trackPos=function(){return cls?cp+(ptsBase===null?0:Math.max(0,C.points()-ptsBase)):C.points()};
+C.setClass=function(c,points,name){cls=c||null;cp=points||0;ptsBase=null;if(name!==undefined)kid=name||"";board=null;chrome()};
+C.syncBase=function(){ptsBase=C.points();C.refresh();if(cls)load()};
+C.saved=function(points,snap){if(cls&&typeof points==="number"){cp=points;ptsBase=snap}};
+function chrome(){
+  var t=$("classTag");t.textContent=cls?cls.label:"";t.style.display=cls?"grid":"none";t.title=cls?"הכיתה שלי: "+cls.name:"";
+  $("setClass").textContent=cls?cls.name:"בלי כיתה";$("setClassBtn").textContent=cls?"החלפה":"הצטרפות";
+}
+
+/* the road: lanes from the start (right) to the flag (left), 🎁 stations at the gear points */
+var BIKE='<g fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="21" r="7.5" stroke="#fff" stroke-width="3"/><circle cx="38" cy="21" r="7.5" stroke="#fff" stroke-width="3"/><path d="M38 21 L24 21 L30 9 Z M30 9 L16 8 M24 21 L16 8 L10 21" stroke="@" stroke-width="3.2"/><path d="M16 8 L14 3 L9 3" stroke="#fff" stroke-width="2.6"/><path d="M30 9 L31 5 M27 5 h7" stroke="#fff" stroke-width="2.6"/></g>';
+function road(rows){
+  var L=C.TRACKLEN,W=600,R0=468,X0=40,LH=46,TOP=34,H=TOP+rows.length*LH+10,gear=C.gearCount(),meLap=0;
+  function X(c){return R0-(c%L)/L*(R0-X0)}
+  rows.forEach(function(r){if(r.me)meLap=Math.floor(r.c/L)});
+  var s='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="המסלול"><defs><pattern id="chk" width="8" height="8" patternUnits="userSpaceOnUse"><rect width="8" height="8" fill="#fff"/><rect width="4" height="4" fill="#111"/><rect x="4" y="4" width="4" height="4" fill="#111"/></pattern>'+
+    '<filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3.5"/></filter></defs>';
+  rows.forEach(function(r,i){var y=TOP+i*LH;
+    if(r.me)s+='<rect x="4" y="'+(y+1)+'" width="'+(W-8)+'" height="'+(LH-2)+'" rx="12" fill="rgba(182,242,58,.10)" stroke="rgba(182,242,58,.55)"/>';
+    s+='<rect x="'+(X0-6)+'" y="'+(y+10)+'" width="'+(R0-X0+14)+'" height="26" rx="13" fill="#1a2747"/>'+
+       '<line x1="'+(X0+4)+'" x2="'+(R0-2)+'" y1="'+(y+23)+'" y2="'+(y+23)+'" stroke="rgba(255,255,255,.18)" stroke-width="2" stroke-dasharray="10 9"/>'});
+  // the start and the finish
+  s+='<rect x="'+(R0+4)+'" y="'+(TOP-2)+'" width="4" height="'+(rows.length*LH)+'" fill="rgba(255,255,255,.35)"/>';
+  s+='<rect x="'+(X0-14)+'" y="'+(TOP-2)+'" width="10" height="'+(rows.length*LH)+'" fill="url(#chk)" opacity=".85"/>';
+  s+='<text x="'+(X0-9)+'" y="24" font-size="20" text-anchor="middle">🏁</text>';
+  s+='<text x="'+(R0+6)+'" y="22" font-size="12" fill="#9fb0cf" text-anchor="middle" font-weight="700">זינוק</text>';
+  if(meLap)s+='<text x="'+((R0+X0)/2)+'" y="'+(H-2)+'" font-size="11" fill="#9fb0cf" text-anchor="middle">סיבוב '+(meLap+1)+'</text>';
+  // gear stations on one's own lap (four a lap; collected ones are lime)
+  C.GEARPTS.forEach(function(g,i){if(Math.floor(g/L)!==Math.min(meLap,Math.floor(C.GEARPTS[C.GEARPTS.length-1]/L)))return;var x=X(g),got=i<gear;
+    s+='<line x1="'+x+'" x2="'+x+'" y1="'+(TOP+4)+'" y2="'+(TOP+rows.length*LH-6)+'" stroke="'+(got?"rgba(182,242,58,.35)":"rgba(255,138,42,.35)")+'" stroke-width="2" stroke-dasharray="3 5"/>'+
+      '<circle cx="'+x+'" cy="17" r="11" fill="'+(got?"#b6f23a":"#0b1326")+'" stroke="'+(got?"#b6f23a":"#ff8a2a")+'" stroke-width="2"/>'+
+      (got?'<path d="M'+(x-5)+' 17.5l3.5 3.5 6.5-7" stroke="#0a1206" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>':'<text x="'+x+'" y="21.5" font-size="12" text-anchor="middle">🎁</text>')});
+  // the bikes, mirrored to ride toward the flag; the names at the start
+  rows.forEach(function(r,i){var y=TOP+i*LH,x=X(r.c),lap=Math.floor(r.c/L);
+    s+='<text x="'+(W-12)+'" y="'+(y+21)+'" direction="rtl" font-size="17" font-weight="'+(r.me?800:600)+'" fill="'+(r.me?"#b6f23a":"#f1f5ff")+'">'+esc(short(r.n))+'</text>'+
+       '<text x="'+(W-12)+'" y="'+(y+38)+'" direction="rtl" font-size="12.5" fill="#9fb0cf">'+r.c+' נק׳'+(lap?' · סיבוב '+(lap+1):'')+'</text>';
+    if(r.me)s+='<circle cx="'+x+'" cy="'+(y+21)+'" r="17" fill="rgba(182,242,58,.45)" filter="url(#glow)"/>';
+    s+='<g transform="translate('+(x+22)+' '+(y+6)+') scale(-0.92 0.92)">'+BIKE.replace("@",r.me?"#b6f23a":"#7fa6ff")+'</g>'});
+  return s+'</svg>';
+}
+function rank(rows){var out=[],prev=null,rk=0;rows.forEach(function(r,i){if(r.c!==prev){rk=i+1;prev=r.c}out.push(rk)});return out}
+
+/* the card on the opening screen */
+C.track=function(){
+  if(!$("myTrack"))return;
+  var me={n:kid||"אני",c:C.trackPos(),me:true};
+  $("tcTitle").textContent=cls?"🚲 המסלול הכיתתי · "+cls.label:"🚲 המסלול שלי";
+  $("myTrack").innerHTML=road([me]);
+  var g=C.gearCount(),nxt=g<C.ITEMS.length?" · עוד "+Math.max(1,C.GEARPTS[g]-me.c)+" נקודות לתחנת הציוד הבאה 🎁":"";
+  if(cls){var p=board&&board.players,i=-1;if(p)p.forEach(function(r,j){if(r.me)i=j});
+    $("tcLine").textContent=(p&&i>=0?"מקום "+rank(p)[i]+" מתוך "+p.length+" בכיתה "+cls.name:"בכיתה "+cls.name)+nxt;
+    $("btnTrackOpen").textContent="🚲 כל הכיתה במסלול"}
+  else{$("tcLine").textContent="רוכבים לבד בינתיים"+nxt+". רוצים לרכוב יחד עם הכיתה? מצטרפים עם קוד כיתה 👇";
+    $("btnTrackOpen").textContent="➕ הצטרפות לכיתה"}
+};
+
+/* the track screen */
+function render(){
+  var rows;
+  if(cls&&board&&board.players.length){rows=board.players.map(function(r){return {n:r.n,c:r.me?Math.max(r.c,C.trackPos()):r.c,me:r.me}});rows.sort(function(a,b){return b.c-a.c})}
+  else rows=[{n:kid||"אני",c:C.trackPos(),me:true}];
+  $("clTitle").textContent=cls?"🚲 המסלול הכיתתי":"🚲 המסלול שלי";
+  $("clSub").textContent=cls?"כיתה "+cls.name+" · "+rows.length+(rows.length===1?" רוכב/ת":" רוכבים")+(rows.length===1?". עוד לא הצטרפו חברים – הם יופיעו כאן":""):"רוכבים לבד בינתיים. בכיתה רואים את כל החברים על אותו מסלול.";
+  $("clTrack").innerHTML=road(rows);
+  $("clListCard").style.display=cls?"block":"none";
+  var rk=rank(rows),md=["🥇","🥈","🥉"];
+  $("clList").innerHTML=rows.map(function(r,i){return '<li'+(r.me?' class="me"':'')+'><span class="rk">'+(rk[i]<=3&&r.c>0?md[rk[i]-1]:rk[i])+'</span><span class="nm">'+esc(r.n)+(r.me?' <small style="color:var(--muted);font-weight:500">(אני)</small>':'')+'</span><span class="pt">'+r.c+' <small>נק׳</small></span></li>'}).join("");
+  $("clSwitch").style.display=cls&&$("clJoin").style.display==="none"?"block":"none";
+  $("clLeave").style.display=cls?"block":"none";
+  $("clJoinH").textContent=cls?"החלפת כיתה":"הצטרפות לכיתה";
+  $("clJoinSub").textContent=cls?"בכיתה חדשה מתחילים את המסלול מההתחלה. הציוד שאספת נשאר שלך.":"את קוד הכיתה מקבלים מההורים או מהמורה. בכיתה רואים את כל החברים על אותו מסלול.";
+}
+function load(){
+  if(!cls||!C.token())return Promise.resolve();
+  return C.flushNow().then(function(){return C.rpc("pp_class_board",{p_token:C.token()})}).then(function(j){
+    if(j&&j.ok){if(!j.class){cls=null;chrome()}else{cls=j.class;board=j;chrome()}}
+    if($("sClass").classList.contains("on"))render();C.track();
+  }).catch(function(e){if(window.console)console.warn("track",e)});
+}
+C.openTrack=function(join){
+  leaveArm=false;$("clLeave").textContent="יציאה מהכיתה";$("clMsg").textContent="";
+  $("clJoin").style.display=join||!cls?"block":"none";
+  C.show("sClass");render();load();
+  if(join)setTimeout(function(){$("clCode").focus()},80);
+};
+function say(t,ok){var m=$("clMsg");m.textContent=t||"";m.className="clmsg"+(ok?" ok":"")}
+var ERR={bad_class:"הקוד הזה לא מוכר. בודקים שוב עם ההורים או המורה 🙂",class_busy:"היו יותר מדי ניסיונות. ננסה שוב בעוד כמה דקות ⏳"};
+function join(code){
+  say("רגע אחד…",true);$("clGo").disabled=true;
+  return C.flushNow().then(function(){return C.rpc("pp_join_class",{p_token:C.token(),p_code:code})}).then(function(j){
+    $("clGo").disabled=false;
+    if(!j||!j.ok){say(ERR[j&&j.error]||(j&&j.error==="no_session"?"צריך להיכנס שוב 🙂":"משהו השתבש בחיבור. ננסה שוב 🙏"));return}
+    cls=j.class;cp=j.class_points||0;ptsBase=C.points();board=null;chrome();$("clCode").value="";
+    $("clJoin").style.display=cls?"none":"block";render();C.track();
+    if(cls){load();setTimeout(function(){say("הצטרפת לכיתה "+cls.name+"! 🎉",true)},0)}else say("יצאת מהכיתה. רוכבים לבד 🚲",true);
+  }).catch(function(){$("clGo").disabled=false;say("אין חיבור לאינטרנט כרגע. ננסה שוב 🙏")});
+}
+$("clGo").onclick=function(){var v=$("clCode").value.trim();if(!v){say("מה קוד הכיתה? ✍️");$("clCode").focus();return}join(v)};
+$("clCode").addEventListener("keydown",function(e){if(e.key==="Enter"){e.preventDefault();$("clGo").click()}});
+$("clLeave").onclick=function(){if(!leaveArm){leaveArm=true;this.textContent="בטוח? לוחצים שוב ליציאה";return}leaveArm=false;this.textContent="יציאה מהכיתה";join("")};
+$("clSwitch").onclick=function(){$("clJoin").style.display="block";render();$("clCode").focus()};
+$("clRefresh").onclick=function(){load()};
+$("clBack").onclick=function(){C.show("sSetup")};
+$("btnTrackOpen").onclick=function(){C.openTrack(!cls)};
+$("btnTrack").onclick=function(){C.openTrack(false)};
+$("setClassBtn").onclick=function(){$("mSettings").classList.remove("on");C.openTrack(true)};
 })();
 </script>
 
