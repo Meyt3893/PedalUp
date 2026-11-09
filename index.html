@@ -353,6 +353,13 @@ body:not(.nospeech) .opt{padding-left:42px;padding-right:42px}
 .hint1 b{color:var(--warn)}
 .explain .vis{margin:8px auto 2px}
 .explain .vis svg{max-height:200px}
+
+.howbtn{display:block;margin:12px auto 0;background:transparent;border:1.5px dashed var(--accent);color:var(--accent);border-radius:14px;padding:8px 16px;font:inherit;font-weight:700;font-size:16px;cursor:pointer}
+.g-done .howbtn{display:none!important}
+.explain.how{border-inline-start-color:var(--accent);background:rgba(var(--acc-rgb),.08);border-color:rgba(var(--acc-rgb),.3)}
+.explain .steps{margin:6px 0 4px;padding-inline-start:24px}
+.explain .steps li{margin:6px 0}
+.explain .steps li::marker{color:var(--accent);font-weight:800}
 </style>
 </head>
 <body>
@@ -448,6 +455,7 @@ body:not(.nospeech) .opt{padding-left:42px;padding-right:42px}
       <div class="qlabel" id="qLabel"></div>
       <div id="qBody"></div>
       <div class="fb" id="fb"></div>
+      <button class="howbtn" id="btnHow" type="button">💡 לא יודע? איך פותרים</button>
       <div class="timer" id="timer"><i id="timerBar"></i></div>
     </div>
     <div class="opts" id="opts"></div>
@@ -647,6 +655,8 @@ var TBY={};TOPICS.forEach(function(t){TBY[t.id]=t});
 /* ---------- shared pieces ---------- */
 var FILL="#ff6b1a",FILL2="#b6f23a",EMPTY="#ffffff",EDGE="#1e293b",INK="#f1f5ff",MUTE="#9fb0cf";
 function WHO(){return PLAYER||"נועם"}
+/* grade 5 (כיתה ה'): the first questions of a round are a little easier, then the full range */
+function WARM(){return !!(R&&R.asked&&R.asked<=3)}
 function F(n,d){return L(fr(n,d))}
 function mx(w,n,d){return '<span class="mx"><b>'+w+'</b>'+fr(n,d)+'</span>'}
 function M(w,n,d){return L(mx(w,n,d))}
@@ -709,7 +719,7 @@ function barSvg(k,d,unequal){var W=240,H=54,sh=pickSet(k,d),s="",ws=[];
   else for(var j=0;j<d;j++)ws.push(W/d);
   var x=4;for(var i2=0;i2<d;i2++){s+='<rect x="'+x.toFixed(2)+'" y="4" width="'+ws[i2].toFixed(2)+'" height="'+H+'" fill="'+(sh.indexOf(i2)>=0?FILL:EMPTY)+'" stroke="'+EDGE+'" stroke-width="2.5"/>';x+=ws[i2]}
   return svg("0 0 248 62",s,'width="248"')}
-function gridSvg(k,d){var rows=d===9?3:2,cols=d/rows,cw=56,s="",sh=pickSet(k,d);
+function gridSvg(k,d){var rows=d===9||d===12?3:2,cols=d/rows,cw=56,s="",sh=pickSet(k,d);
   for(var i=0;i<d;i++){var c=i%cols,r=Math.floor(i/cols);s+='<rect x="'+(4+c*cw)+'" y="'+(4+r*cw)+'" width="'+cw+'" height="'+cw+'" fill="'+(sh.indexOf(i)>=0?FILL:EMPTY)+'" stroke="'+EDGE+'" stroke-width="2.5"/>'}
   return svg("0 0 "+(cols*cw+8)+" "+(rows*cw+8),s,'width="'+(cols*cw+8)+'"')}
 function setSvg(k,d,small){var sh=pickSet(k,d),s="",cols=d>5?Math.ceil(d/2):d,rows=Math.ceil(d/cols);
@@ -764,7 +774,7 @@ function secondTry(q,choice){
 function gFpart(){var r=Math.random();
   if(r<.30)return fpPic(false);if(r<.42)return fpPic(true);if(r<.62)return fpChoose();if(r<.78)return fpNames();if(r<.90)return fpStory();return fpWhole()}
 function fpPic(not){
-  var style=pick(["pie","bar","grid","set"]),d=pick({pie:[2,3,4,5,6,8],bar:[3,4,5,6,7,8,10],grid:[6,8,9,10],set:[3,4,5,6,7,8,9,10]}[style]),k=ri(1,d-1),t=not?d-k:k;
+  var style=pick(["pie","bar","grid","set"]),d=pick(WARM()?{pie:[2,3,4,5,6,8],bar:[3,4,5,6,8],grid:[6,8,9,10],set:[3,4,5,6,8]}[style]:{pie:[3,4,5,6,8,10,12],bar:[4,5,6,7,8,10,12],grid:[6,8,9,10,12],set:[5,6,7,8,9,10,12]}[style]),k=ri(1,d-1),t=not?d-k:k;
   var what=style==="pie"?"מהעיגול":style==="set"?"מהעיגולים":"מהמלבן",parts=style==="set"?"עיגולים":"חלקים שווים";
   var q={time:30,label:"איזה חלק "+what+(not?" לא צבוע?":" צבוע בכתום?"),body:vis(fracPic(style,k,d))+expr(ansFrac()),
     sayBody:(style==="set"?"ספור כמה עיגולים יש בסך הכול, וכמה מהם ":"הציור מחולק לחלקים שווים. ספור כמה חלקים יש בסך הכול, וכמה מהם ")+(not?"לבנים.":"כתומים.")+" כתוב את התשובה כשבר.",
@@ -777,7 +787,7 @@ function fpPic(not){
     return "המכנה נכון 👍 ספור שוב כמה חלקים "+(not?"לבנים":"כתומים")+"."};
   return fracQ(q,t,d)}
 function fpChoose(){
-  var style=pick(["pie","bar","set"]),d=pick(style==="bar"?[3,4,5,6]:[3,4,5,6,8]),k=ri(1,d-1);
+  var style=pick(["pie","bar","set"]),d=pick(style==="bar"?[3,4,5,6,8]:[3,4,5,6,8,10]),k=ri(1,d-1);
   function ps(a,b){return style==="set"?b+" עיגולים, ו-"+a+" מהם כתומים":(style==="pie"?"עיגול":"מלבן")+" עם "+b+" חלקים שווים, ו-"+a+" מהם צבועים"}
   var q={time:30,label:"באיזה ציור צבוע "+F(k,d)+"?",body:"",sayBody:"",pics:true,short:"ציור של "+F(k,d)};
   var cands=[[d-k,d],[k,d+1],[k+1,d],[k,d-1],[k-1,d]].filter(function(x){return x[0]>0&&x[1]>1&&x[0]<x[1]&&!eqv(x,[k,d])}),opts=[],seen={};
@@ -787,7 +797,7 @@ function fpChoose(){
   q.explain="בציור הנכון השלם מחולק ל-"+d+" חלקים שווים, ו-"+k+" מהם צבועים: "+F(k,d)+(uneq?"<br>שים לב: החלקים חייבים להיות שווים! בציור עם החלקים הלא שווים זה לא "+F(k,d)+".":"");
   return mc(q,{h:fracPic(style,k,d,true),k:"p"+k+"/"+d,say:ps(k,d)},opts)}
 function fpNames(){
-  var d=ri(3,10),n=ri(1,d-1),x=Math.random(),q={time:20};
+  var d=ri(3,12),n=ri(1,d-1),x=Math.random(),q={time:20};
   if(x<.25){q.label="בשבר "+F(n,d)+" – מה המונה?";q.body=expr(fr(n,d));q.explain="המונה הוא המספר שלמעלה, מעל קו השבר: "+L(n)+"<br>המכנה הוא המספר שלמטה: "+L(d);q.short="המונה של "+F(n,d)+" הוא "+n;return mc(q,numOpt(n),[numOpt(d),numOpt(n+d)])}
   if(x<.5){q.label="בשבר "+F(n,d)+" – מה המכנה?";q.body=expr(fr(n,d));q.explain="המכנה הוא המספר שלמטה, מתחת לקו השבר: "+L(d)+"<br>המונה הוא המספר שלמעלה: "+L(n);q.short="המכנה של "+F(n,d)+" הוא "+d;return mc(q,numOpt(d),[numOpt(n),numOpt(n+d)])}
   if(x<.7){q.label="בשבר "+F(n,d)+", מה אומר המכנה "+L(d)+"?";q.body=vis(barSvg(n,d));q.wide=true;q.sayBody="";
@@ -803,16 +813,16 @@ function fpNames(){
   return q}
 function fpStory(){
   var S=[
-    function(){var d=ri(4,10),k=ri(1,d-1);return {t:"בחניה יש "+d+" אופניים, ו-"+k+" מהם אדומים. איזה חלק מהאופניים אדום?",k:k,d:d,all:"כל האופניים",some:"האדומים"}},
-    function(){var d=ri(4,10),k=ri(1,d-1);return {t:"בקופסה יש "+d+" עפרונות, ו-"+k+" מהם ירוקים. איזה חלק מהעפרונות ירוק?",k:k,d:d,all:"כל העפרונות",some:"הירוקים"}},
+    function(){var d=ri(5,12),k=ri(1,d-1);return {t:"בחניה יש "+d+" אופניים, ו-"+k+" מהם אדומים. איזה חלק מהאופניים אדום?",k:k,d:d,all:"כל האופניים",some:"האדומים"}},
+    function(){var d=ri(6,12),k=ri(1,d-1);return {t:"בקופסה יש "+d+" עפרונות, ו-"+k+" מהם ירוקים. איזה חלק מהעפרונות ירוק?",k:k,d:d,all:"כל העפרונות",some:"הירוקים"}},
     function(){var k=ri(1,6);return {t:"בשבוע יש 7 ימים. "+WHO()+" רכב על האופניים "+k+" ימים בשבוע. באיזה חלק מימי השבוע הוא רכב?",k:k,d:7,all:"כל ימי השבוע",some:"הימים שרכב"}},
-    function(){var d=pick([6,8,10]),k=ri(1,d-1);return {t:"פיצה חולקה ל-"+d+" משולשים שווים, ו-"+k+" משולשים כבר נאכלו. איזה חלק מהפיצה נאכל?",k:k,d:d,all:"כל המשולשים",some:"המשולשים שנאכלו"}},
-    function(){var d=ri(5,10),k=ri(1,d-1);return {t:"בקבוצת רכיבה יש "+d+" ילדים, ו-"+k+" מהם רוכבים עם כפפות. איזה חלק מהילדים רוכב עם כפפות?",k:k,d:d,all:"כל הילדים",some:"הילדים עם הכפפות"}}];
+    function(){var d=pick([6,8,10,12]),k=ri(1,d-1);return {t:"פיצה חולקה ל-"+d+" משולשים שווים, ו-"+k+" משולשים כבר נאכלו. איזה חלק מהפיצה נאכל?",k:k,d:d,all:"כל המשולשים",some:"המשולשים שנאכלו"}},
+    function(){var d=ri(6,12),k=ri(1,d-1);return {t:"בקבוצת רכיבה יש "+d+" ילדים, ו-"+k+" מהם רוכבים עם כפפות. איזה חלק מהילדים רוכב עם כפפות?",k:k,d:d,all:"כל הילדים",some:"הילדים עם הכפפות"}}];
   var s=pick(S)(),q={time:40,label:"שאלה מילולית",body:'<p class="qtext">'+s.t+'</p><div class="ansline">תשובה: '+ansFrac()+'</div>',
     explain:"המכנה – "+s.all+": "+L(s.d)+"<br>המונה – "+s.some+": "+L(s.k)+"<br>התשובה: "+F(s.k,s.d),short:s.t.split("?")[0].split(/[.,]/)[0]+"… "+F(s.k,s.d)};
   q.hint1=function(p){return p.d!==s.d?"המכנה הוא כמה יש בסך הכול – "+s.all+".":"המכנה נכון 👍 המונה הוא כמה מתוכם – "+s.some+"."};
   return fracQ(q,s.k,s.d)}
-function fpWhole(){var d=ri(2,10),q={time:20};
+function fpWhole(){var d=ri(2,12),q={time:20};
   if(Math.random()<.5){q.label="כמה "+PLN(d)+" יש בשלם אחד?";q.body=vis(barSvg(d,d));q.sayBody="";
     q.explain="שלם אחד מחולק ל-"+d+" חלקים שווים, לכן יש בו "+d+" "+PLN(d)+": "+L(fr(d,d)+EQ+"1");q.short="בשלם אחד יש "+d+" "+PLN(d);
     q.body+='<div class="ansline">'+slot(0)+'</div>';q.hint1=function(){return "ספור את החלקים בציור – כל חלק הוא "+F(1,d)+"."};return numQ(q,d)}
@@ -823,7 +833,7 @@ function fpWhole(){var d=ri(2,10),q={time:20};
 /* ---------- 2. fractions on the number line ---------- */
 function gFline(){var r=Math.random();if(r<.34)return flRead();if(r<.66)return flTap();if(r<.88)return flCompare();return flOne()}
 function flRead(){
-  var big=Math.random()<.35,W=big?pick([2,3]):1,d=big?pick([2,3,4]):pick([2,3,4,5,6,8,10]),i;
+  var big=!WARM()&&Math.random()<.55,W=big?pick([2,3]):1,d=big?pick(W===3?[2,3,4]:[2,3,4,5,6]):pick(WARM()?[2,3,4,5,6]:[4,5,6,8,10,12]),i;
   do{i=ri(1,W*d-1)}while(i%d===0);
   var q={time:40,label:"איזה "+(big?"מספר":"שבר")+" מסומן בחץ על ישר המספרים?",body:vis(nlSvg({W:W,d:d,mark:i}),"nl")+expr(big?ansMix():ansFrac()),
     sayBody:"ספור לכמה קטעים שווים מחולק כל שלם, וכמה קטעים יש מ-0 עד החץ.",
@@ -832,7 +842,7 @@ function flRead(){
   q.hint1=function(p){return p.d!==d&&p.d!==1?"ספור לכמה קטעים שווים מחולק המרחק בין 0 ל-1. זה המכנה.":"ספור את הקטעים מ-0 ועד החץ"+(big?" (בכל שלם יש "+d+" קטעים).":".")};
   return big?anyQ(q,i,d):fracQ(q,i,d)}
 function flTap(){
-  var big=Math.random()<.3,W=big?2:1,d=big?pick([2,3,4]):pick([2,3,4,5,6,8,10]),i;
+  var big=!WARM()&&Math.random()<.5,W=big?pick([2,3]):1,d=big?pick(W===3?[2,3,4]:[2,3,4,5]):pick(WARM()?[2,3,4,5,6]:[4,5,6,8,10]),i;
   do{i=ri(1,W*d-1)}while(i%d===0);
   var asM=i>d&&Math.random()<.5,tgt=asM?mx(Math.floor(i/d),i%d,d):fr(i,d);
   var q={kind:"tap",ci:i,time:30,label:"לחץ על המקום של "+L(tgt)+" על ישר המספרים",body:vis(nlSvg({W:W,d:d,tap:true}),"nl tapline"),
@@ -843,8 +853,9 @@ function flTap(){
   return q}
 function flCompare(){
   var d,a,b,eq=Math.random()<.2,q={time:30,label:"איזה שבר גדול יותר?",short:""},A,B,pts,D;
-  if(eq){var d1=pick([2,3,4,5]);d=d1;a=ri(1,d1-1);D=2*d1;A=[a,d1];B=[2*a,D];pts=[{i:2*a,n:a,d:d1,c:FILL},{i:2*a,n:null,c:FILL2}]}
-  else{d=pick([4,5,6,8,10]);a=ri(1,d-1);do{b=ri(1,d-1)}while(b===a);D=d;A=[a,d];B=[b,d];pts=[{i:a,n:a,d:d,c:FILL},{i:b,n:b,d:d,c:FILL2}]}
+  if(!eq&&!WARM()&&Math.random()<.35)return flSameNum();
+  if(eq){var d1=pick([2,3,4,5,6]);d=d1;a=ri(1,d1-1);D=2*d1;A=[a,d1];B=[2*a,D];pts=[{i:2*a,n:a,d:d1,c:FILL},{i:2*a,n:null,c:FILL2}]}
+  else{d=pick(WARM()?[4,5,6,8]:[5,6,8,10,12]);a=ri(1,d-1);do{b=ri(1,d-1)}while(b===a);D=d;A=[a,d];B=[b,d];pts=[{i:a,n:a,d:d,c:FILL},{i:b,n:b,d:d,c:FILL2}]}
   var show=!eq&&Math.random()<.5;
   q.label=show?"איזה שבר גדול יותר? היעזר בישר המספרים":"איזה שבר גדול יותר?";
   q.body=show?vis(nlSvg({W:1,d:D,pts:pts}),"nl"):vis(nlSvg({W:1,d:D}),"nl")+expr(fr(A[0],A[1])+'<span class="vs">?</span>'+fr(B[0],B[1]));
@@ -855,17 +866,26 @@ function flCompare(){
     q.explain="על ישר המספרים, מה שנמצא יותר ימינה – גדול יותר.<br>"+F(big[0],d)+" נמצא ימינה מ-"+F(sm[0],d)+", לכן הוא גדול יותר.<br>וגם: כשהמכנים שווים, משווים את המונים – "+L(big[0])+" גדול מ-"+L(sm[0])+"."+(show?"":vis(nlSvg({W:1,d:d,pts:pts}),"nl"));
     q.short=F(big[0],d)+" גדול מ-"+F(sm[0],d);mc(q,a>b?oA:oB,[a>b?oB:oA,oE])}
   q.fixed=[oA,oB,oE];return q}
+/* the same numerator: the bigger denominator means smaller parts */
+function flSameNum(){var k=ri(1,3),d1,d2;do{d1=ri(k+1,12);d2=ri(k+1,12)}while(d1===d2);
+  var A=[k,d1],B=[k,d2],big=d1<d2?A:B,sm=d1<d2?B:A,oA=fracOpt(k,d1),oB=fracOpt(k,d2),oE={h:"הם שווים",k:"eq"};
+  var q={time:30,label:"איזה שבר גדול יותר?",body:expr(fr(k,d1)+'<span class="vs">?</span>'+fr(k,d2)),sayBody:"השווה בין "+fracWords(k,d1)+" ל"+fracWords(k,d2)+".",
+    explain:"המונים שווים: בשניהם "+k+". אז משווים את המכנים.<br>המכנה אומר לכמה חלקים חילקו את השלם. ככל שחותכים ליותר חלקים – כל חלק קטן יותר.<br>חלק של "+F(1,big[1])+" גדול מחלק של "+F(1,sm[1])+".<br>לכן "+F(k,big[1])+" גדול מ-"+F(k,sm[1])+vis(barSvg(k,big[1]))+vis(barSvg(k,sm[1])),
+    short:F(k,big[1])+" גדול מ-"+F(k,sm[1])};
+  mc(q,d1<d2?oA:oB,[d1<d2?oB:oA,oE]);q.fixed=[oA,oB,oE];return q}
 function flOne(){var d=ri(3,8),q={time:25};
-  if(Math.random()<.5){q.label="איזה שבר נמצא בדיוק על המספר 1 בישר המספרים?";q.body=vis(nlSvg({W:2,d:d}),"nl");q.sayBody="";
-    q.explain="שבר שהמונה שלו שווה למכנה הוא שלם אחד: "+L(fr(d,d)+EQ+"1")+vis(nlSvg({W:2,d:d,pts:[{i:d,n:d,d:d,c:FILL}]}),"nl");q.short=L(fr(d,d)+EQ+"1");
-    return mc(q,fracOpt(d,d),[fracOpt(1,d),fracOpt(d-1,d),fracOpt(d+1,d)])}
+  if(Math.random()<.5){var two=!WARM()&&Math.random()<.5,t=two?2:1,dd=two?ri(2,5):d;
+    q.label="איזה שבר נמצא בדיוק על המספר "+t+" בישר המספרים?";q.body=vis(nlSvg({W:two?3:2,d:dd}),"nl");q.sayBody="";
+    q.explain=(two?"בכל שלם יש "+dd+" "+PLN(dd)+", אז ב-2 שלמים יש "+L("2"+X+dd+EQ+2*dd)+" "+PLN(dd)+": "+L(fr(2*dd,dd)+EQ+"2"):"שבר שהמונה שלו שווה למכנה הוא שלם אחד: "+L(fr(dd,dd)+EQ+"1"))+vis(nlSvg({W:two?3:2,d:dd,pts:[{i:t*dd,n:t*dd,d:dd,c:FILL}]}),"nl");q.short=L(fr(t*dd,dd)+EQ+t);
+    return mc(q,fracOpt(t*dd,dd),two?[fracOpt(2,dd),fracOpt(dd+2,dd),fracOpt(2*dd-1,dd)]:[fracOpt(1,dd),fracOpt(dd-1,dd),fracOpt(dd+1,dd)])}
   var k=ri(1,d-1);q.label="איזה מהשברים גדול מ-1?";q.body=vis(nlSvg({W:2,d:d}),"nl");q.sayBody="";
   q.explain="שבר שהמונה שלו גדול מהמכנה – גדול מ-1. על הישר הוא נמצא אחרי ה-1."+vis(nlSvg({W:2,d:d,pts:[{i:d+k,n:d+k,d:d,c:FILL}]}),"nl");q.short=F(d+k,d)+" גדול מ-1";
   return mc(q,fracOpt(d+k,d),[fracOpt(k,d),fracOpt(d,d),fracOpt(d-1,d)])}
 
 /* ---------- 3. adding and taking away, same denominator ---------- */
-function gFadd(){var r=Math.random();if(r<.45)return faExpr();if(r<.57)return faFromWhole();if(r<.70)return faMissing();return faWord()}
-function faParts(add,over){var d=ri(3,10),a,b;
+function gFadd(){var r=Math.random();if(WARM())return r<.6?faExpr():faWord();
+  if(r<.30)return faExpr();if(r<.55)return faMixed();if(r<.65)return faFromWhole();if(r<.75)return faMissing();return faWord()}
+function faParts(add,over){var d=WARM()?ri(3,8):ri(4,12),a,b;
   if(add){if(over){a=ri(Math.ceil(d/2),d-1);b=ri(d-a+1,d-1);if(b<1||a+b<=d){a=d-1;b=2}}else{a=ri(1,d-1);b=ri(1,d-a)}}
   else{if(over&&d<=8){a=ri(d+1,2*d-1);b=ri(1,a-1)}else{a=ri(2,d);if(a===d&&Math.random()<.5)a=d-1;a=Math.max(2,a);b=ri(1,a-1)}}
   return {a:a,b:b,d:d,r:add?a+b:a-b}}
@@ -885,14 +905,32 @@ function faExpr(){
   q.label="כמה זה?";q.body=expr(e+EQ+ansMix());q.sayBody=spoken(e)+" שווה כמה?";
   q.hint1=faHint(a,b,d,add);return anyQ(q,P.r,d)}
 function faFromWhole(){
-  var d=ri(3,10),a=ri(1,d-1),two=Math.random()<.3,W=two?2:1,r=W*d-a;
-  var q={time:45,label:"כמה זה?",body:expr(W+MI+fr(a,d)+EQ+ansMix()),sayBody:(two?"שני שלמים":"שלם אחד")+" פחות "+fracWords(a,d)+" שווה כמה?",short:L(W+MI+fr(a,d)+EQ+asMixed(r,d))};
-  q.explain=two?"מפרקים את 2: "+L("2"+EQ+"1"+PL+fr(d,d))+"<br>"+L(fr(d,d)+MI+fr(a,d)+EQ+fr(d-a,d))+"<br>לכן "+L("2"+MI+fr(a,d)+EQ+mx(1,d-a,d))
+  var d=ri(3,12),a=ri(1,d-1),two=Math.random()<.4,W=two?pick([2,3,4]):1,r=W*d-a;
+  var q={time:45,label:"כמה זה?",body:expr(W+MI+fr(a,d)+EQ+ansMix()),sayBody:(two?W+" שלמים":"שלם אחד")+" פחות "+fracWords(a,d)+" שווה כמה?",short:L(W+MI+fr(a,d)+EQ+asMixed(r,d))};
+  q.explain=two?"מפרקים את "+W+": "+L(W+EQ+(W-1)+PL+fr(d,d))+"<br>"+L(fr(d,d)+MI+fr(a,d)+EQ+fr(d-a,d))+"<br>לכן "+L(W+MI+fr(a,d)+EQ+mx(W-1,d-a,d))
     :"שלם אחד הוא "+L(fr(d,d))+"<br>"+L("1"+MI+fr(a,d)+EQ+fr(d,d)+MI+fr(a,d)+EQ+fr(d-a,d))+vis(barsSvg(d,a,d,true));
   q.hint1=function(){return "כתוב את השלם כשבר עם אותו מכנה: "+L("1"+EQ+fr(d,d))+", ואז מחסירים."};
   return anyQ(q,r,d)}
+/* mixed numbers with the same denominator: adding past a whole, or taking away with regrouping (פריטה) */
+function faMixed(){
+  var d=ri(3,12),add=Math.random()<.5,w1,r1,w2,r2,regroup=Math.random()<.6;
+  if(add){w1=ri(1,5);w2=ri(1,4);if(regroup){r1=ri(Math.ceil(d/2),d-1);r2=ri(Math.max(1,d-r1),d-1)}else{r1=ri(1,d-2);r2=ri(1,d-1-r1)}}
+  else{w1=ri(2,6);w2=ri(1,w1-1);if(regroup){r1=ri(1,d-2);r2=ri(r1+1,d-1)}else{r1=ri(2,d-1);r2=ri(1,r1-1)}}
+  var A=w1*d+r1,B=w2*d+r2,res=add?A+B:A-B,e=mx(w1,r1,d)+(add?PL:MI)+mx(w2,r2,d),ex;
+  if(add){var ws=w1+w2,rs=r1+r2;
+    ex="מחברים שלמים עם שלמים: "+L(w1+PL+w2+EQ+ws)+"<br>מחברים שברים עם שברים: "+L(fr(r1,d)+PL+fr(r2,d)+EQ+fr(rs,d))+
+      (rs>=d?"<br>"+F(rs,d)+" זה שלם או יותר! "+L(fr(rs,d)+EQ+asMixed(rs,d))+"<br>מוסיפים את השלם לשלמים: "+L(ws+PL+asMixed(rs,d)+EQ+asMixed(res,d)):"<br>ביחד: "+L(asMixed(res,d)))}
+  else{
+    ex=(r1<r2?"אי אפשר להוריד "+F(r2,d)+" מ-"+F(r1,d)+", כי "+r1+" קטן מ-"+r2+".<br>פורטים שלם אחד ל-"+F(d,d)+": "+L(mx(w1,r1,d)+EQ+mx(w1-1,r1+d,d))+"<br>עכשיו מורידים שלמים: "+L((w1-1)+MI+w2+EQ+(w1-1-w2))+"<br>ושברים: "+L(fr(r1+d,d)+MI+fr(r2,d)+EQ+fr(r1+d-r2,d))
+      :"מורידים שלמים משלמים: "+L(w1+MI+w2+EQ+(w1-w2))+"<br>ושברים משברים: "+L(fr(r1,d)+MI+fr(r2,d)+EQ+fr(r1-r2,d)))+"<br>התשובה: "+L(asMixed(res,d))}
+  var q={time:70,label:"כמה זה?",body:expr(e+EQ+ansMix()),sayBody:spoken(e)+" שווה כמה?",explain:ex,short:L(e+EQ+asMixed(res,d))};
+  q.hint1=function(p){var v=pval(p);if(p.d!==d&&!eqv(v,[res,d]))return "המכנה לא משתנה – הוא נשאר "+d+".";
+    if(add&&r1+r2>=d)return "שים לב: "+L(fr(r1,d)+PL+fr(r2,d))+" זה שלם או יותר. מעבירים שלם אחד לשלמים.";
+    if(!add&&r1<r2)return "אי אפשר להוריד "+F(r2,d)+" מ-"+F(r1,d)+". פורטים שלם אחד ל-"+F(d,d)+".";
+    return add?"מחברים שלמים עם שלמים, ושברים עם שברים.":"מורידים שלמים משלמים, ושברים משברים."};
+  return anyQ(q,res,d)}
 function faMissing(){
-  var d=ri(4,10),add=Math.random()<.6,a,c,m;
+  var d=ri(4,12),add=Math.random()<.6,a,c,m;
   if(add){a=ri(1,d-2);c=ri(a+1,d);m=c-a}else{c=ri(3,d);a=ri(1,c-1);m=c-a}
   var hole='<span class="fr"><span>'+slot(0)+'</span><span>'+d+'</span></span>';
   var e=add?fr(a,d)+PL+hole+EQ+fr(c,d):fr(c,d)+MI+hole+EQ+fr(a,d);
@@ -907,7 +945,7 @@ function faWord(){
     function(){var P=faParts(true,false);return {t:"צבעו "+F(P.a,P.d)+" מהגדר בכחול, ו-"+F(P.b,P.d)+" מהגדר באדום. איזה חלק מהגדר צבוע?",P:P,add:true}},
     function(){var P=faParts(true,true);return {t:"ביום ראשון "+WHO()+" רכב "+F(P.a,P.d)+" שעה, וביום שני "+F(P.b,P.d)+" שעה. כמה שעות הוא רכב בשני הימים יחד?",P:P,add:true,u:"שעות"}},
     function(){var P=faParts(false,false);return {t:"בבקבוק היו "+F(P.a,P.d)+" ליטר מים. "+WHO()+" שתה "+F(P.b,P.d)+" ליטר. כמה ליטר מים נשארו בבקבוק?",P:P,add:false,u:"ליטר"}},
-    function(){var d=pick([6,8,10]),a=ri(1,d-1);return {t:"פיצה חולקה ל-"+d+" משולשים שווים. אכלו "+F(a,d)+" מהפיצה. איזה חלק מהפיצה נשאר?",P:{a:d,b:a,d:d,r:d-a},add:false,one:true}},
+    function(){var d=pick([6,8,10,12]),a=ri(1,d-1);return {t:"פיצה חולקה ל-"+d+" משולשים שווים. אכלו "+F(a,d)+" מהפיצה. איזה חלק מהפיצה נשאר?",P:{a:d,b:a,d:d,r:d-a},add:false,one:true}},
     function(){var P=faParts(false,false);if(P.a>=P.d)P.a=P.d-1;P.b=Math.min(P.b,P.a-1);P.r=P.a-P.b;return {t:"אורך השביל בפארק הוא "+F(P.a,P.d)+" ק״מ. "+WHO()+" כבר רכב "+F(P.b,P.d)+" ק״מ. כמה ק״מ נשאר לו לרכוב?",P:P,add:false,u:"ק״מ"}}];
   var s=pick(S)(),P=s.P,q={time:60,label:"שאלה מילולית",body:'<p class="qtext">'+s.t+'</p><div class="ansline">תשובה: '+ansMix()+(s.u?" "+s.u:"")+'</div>'};
   q.explain=(s.one?"כל הפיצה היא שלם אחד: "+L("1"+EQ+fr(P.d,P.d))+"<br>"+L(fr(P.d,P.d)+MI+fr(P.b,P.d)+EQ+fr(P.r,P.d))+vis(barsSvg(P.d,P.b,P.d,true)):"מה עושים? "+(s.add?"מחברים":"מחסירים")+".<br>"+faExplain(P.a,P.b,P.d,s.add));
@@ -917,8 +955,8 @@ function faWord(){
 
 /* ---------- 4. improper fractions and mixed numbers ---------- */
 function gFmix(){var r=Math.random();if(r<.30)return fmToMixed();if(r<.58)return fmToImproper();if(r<.76)return fmPic();if(r<.90)return fmChoose();return fmBig()}
-function fmPick(){var d=ri(2,10),w=ri(1,d>6?3:4),r=ri(1,d-1);return {w:w,r:r,d:d,n:w*d+r}}
-function fmVis(w,r,d){return vis(d<=8&&w<=3?piesSvg(w,r,d,26):barsSvg(w*d+r,0,d,false))}
+function fmPick(){var d=WARM()?ri(2,8):ri(2,12),w=WARM()?ri(1,3):ri(2,d>8?6:d>4?8:12),r=ri(1,d-1);return {w:w,r:r,d:d,n:w*d+r}}
+function fmVis(w,r,d){return w>5?"":vis(d<=8&&w<=3?piesSvg(w,r,d,26):piesSvg(w,r,d,20))}
 function fmToMixed(){var P=fmPick(),w=P.w,r=P.r,d=P.d,n=P.n;
   var q={time:50,label:"כתוב כמספר מעורב",body:expr(fr(n,d)+EQ+ansMix(true)),sayBody:fracWords(n,d)+" שווה כמה?",short:L(fr(n,d)+EQ+mx(w,r,d))};
   q.explain="כמה פעמים "+L(d)+" נכנס ב-"+L(n)+"? "+L(w+X+d+EQ+w*d)+", אז יש "+w+" שלמים.<br>נשאר "+L(n+MI+w*d+EQ+r)+" – זה המונה, והמכנה נשאר "+L(d)+".<br>"+L(fr(n,d)+EQ+mx(w,r,d))+fmVis(w,r,d);
@@ -932,10 +970,10 @@ function fmToImproper(){var P=fmPick(),w=P.w,r=P.r,d=P.d,n=P.n;
   q.hint1=function(p){if(p.d!==d&&!eqv(pval(p),[n,d]))return "המכנה נשאר "+d+".";
     return "המכנה נכון 👍 כמה "+PLN(d)+" יש ב-"+w+" שלמים? (בכל שלם יש "+d+") ואז מוסיפים עוד "+r+"."};
   return fracQ(q,n,d)}
-function fmPic(){var d=pick([2,3,4,6,8]),w=ri(1,3),r=ri(1,d-1),n=w*d+r,asMix=Math.random()<.5;
+function fmPic(){var d=pick([2,3,4,5,6,8]),w=ri(1,WARM()?2:4),r=ri(1,d-1),n=w*d+r,asMix=Math.random()<.5;
   var q={time:50,label:"כמה עיגולים צבועים? כתוב "+(asMix?"כמספר מעורב":"כשבר"),sayBody:"ספור כמה עיגולים צבועים כולם, ואיזה חלק צבוע בעיגול האחרון. כתוב "+(asMix?"כמספר מעורב.":"כשבר."),
     short:"עיגולים צבועים: "+L(mx(w,r,d)+EQ+fr(n,d))};
-  q.body=vis(piesSvg(w,r,d,w>2?28:34))+expr(asMix?ansMix(true):ansFrac());
+  q.body=vis(piesSvg(w,r,d,w>3?22:w>2?28:34))+expr(asMix?ansMix(true):ansFrac());
   q.explain=w+" עיגולים צבועים כולם, ובעיגול האחרון צבועים "+r+" מתוך "+d+" חלקים: "+M(w,r,d)+"<br>בכל עיגול יש "+d+" חלקים, אז ביחד: "+L(w+X+d+PL+r+EQ+n)+" חלקים: "+F(n,d);
   q.hint1=asMix?function(p){return p.w!==w?"כמה עיגולים צבועים כולם? זה מספר השלמים.":"השלמים נכונים 👍 איזה חלק צבוע בעיגול האחרון?"}
     :function(p){return p.d!==d?"לכמה חלקים מחולק כל עיגול? זה המכנה.":"המכנה נכון 👍 ספור את כל החלקים הצבועים בכל העיגולים."};
@@ -949,35 +987,45 @@ function fmChoose(){var P=fmPick(),w=P.w,r=P.r,d=P.d,n=P.n,q={time:35};
   q.label="איזה שבר שווה ל-"+M(w,r,d)+"?";q.body="";q.sayBody="";
   q.explain=w+" שלמים = "+L(w+X+d+EQ+w*d)+" "+PLN(d)+", ועוד "+r+": "+L(w*d+PL+r+EQ+n)+"<br>לכן "+L(mx(w,r,d)+EQ+fr(n,d));q.short=L(mx(w,r,d)+EQ+fr(n,d));
   return mc(q,fracOpt(n,d),[fracOpt(w+r,d),fracOpt(w*r,d),fracOpt(n+d,d),fracOpt(n-1,d)])}
-function fmBig(){var d=ri(3,9),k=ri(1,d-1),q={time:25,body:"",sayBody:""};
+function fmBig(){var d=ri(3,12),k=ri(1,d-1),q={time:25,body:"",sayBody:""};
   if(Math.random()<.5){q.label="איזה מהשברים גדול מ-1?";q.explain="כשהמונה גדול מהמכנה, השבר גדול מ-1: "+L(fr(d+k,d)+EQ+mx(1,k,d));q.short=F(d+k,d)+" גדול מ-1";
     return mc(q,fracOpt(d+k,d),[fracOpt(k,d),fracOpt(d,d),fracOpt(d-1,d)])}
   q.label="איזה מהשברים שווה בדיוק ל-1?";q.explain="כשהמונה שווה למכנה, השבר שווה לשלם אחד: "+L(fr(d,d)+EQ+"1");q.short=F(d,d)+" = 1";
   return mc(q,fracOpt(d,d),[fracOpt(1,d),fracOpt(d+1,d),fracOpt(d-1,d)])}
 
 /* ---------- 5. a fraction of a quantity ---------- */
-function gFqty(){var r=Math.random();if(r<.28)return fqUnit();if(r<.60)return fqNon();return fqWord()}
-function fqUnit(){var d=ri(2,10),m=ri(2,10),N=d*m;
+function gFqty(){var r=Math.random();if(WARM())return r<.5?fqUnit():fqNon();if(r<.15)return fqUnit();if(r<.50)return fqNon();if(r<.62)return fqWhole();return fqWord()}
+function fqUnit(){var d=ri(2,12),m=ri(2,10),N=d*m;
   var q={time:30,label:"כמה זה?",body:'<p class="qtext qbig">כמה זה '+F(1,d)+" מ-"+L(N)+'?</p><div class="ansline">'+slot(0)+'</div>',sayBody:"כמה זה "+fracWords(1,d)+" מ-"+N+"?",
     explain:F(1,d)+" מ-"+L(N)+": מחלקים את "+L(N)+" ל-"+d+" חלקים שווים.<br>"+L(N+DV+d+EQ+m)+(N<=60&&m<=10?vis(dotsSvg(N,d,1)):""),short:F(1,d)+" מ-"+L(N)+" = "+L(m)};
   q.hint1=function(){return "חלק את "+N+" ל-"+d+" חלקים שווים. כמה יש בכל חלק?"};
   return numQ(q,m)}
-function fqNon(){var d=ri(3,10),k=ri(2,d-1),m=ri(2,10),N=d*m,a=k*m;
+function fqNon(){var d=WARM()?ri(3,6):ri(3,12),k=ri(2,d-1),m=ri(2,WARM()?6:12),N=d*m,a=k*m;
   var q={time:45,label:"כמה זה?",body:'<p class="qtext qbig">כמה זה '+F(k,d)+" מ-"+L(N)+'?</p><div class="ansline">'+slot(0)+'</div>',sayBody:"כמה זה "+fracWords(k,d)+" מ-"+N+"?",
     explain:"קודם מוצאים "+F(1,d)+": "+L(N+DV+d+EQ+m)+"<br>ואז "+k+" חלקים כאלה: "+L(m+X+k+EQ+a)+"<br>לכן "+F(k,d)+" מ-"+L(N)+" = "+L(a)+(N<=60?vis(dotsSvg(N,d,k)):""),short:F(k,d)+" מ-"+L(N)+" = "+L(a)};
   q.hint1=function(p){if(p.n===m)return "מצאת את "+F(1,d)+" – יפה! 👍 אבל צריך "+F(k,d)+": "+k+" חלקים כאלה.";
     return "קודם מחלקים את "+N+" במכנה ("+d+"), ואחר כך כופלים במונה ("+k+")."};
   return numQ(q,a)}
+/* the part is known, the whole is not: 3/4 of a number is 18 */
+function fqWhole(){var d=ri(2,10),k=ri(1,d-1),m=ri(2,10),N=d*m,a=k*m;
+  var q={time:60,label:"מה המספר?",body:'<p class="qtext qbig">'+F(k,d)+" ממספר הם "+L(a)+'. מה המספר?</p><div class="ansline">'+slot(0)+'</div>',sayBody:fracWords(k,d)+" ממספר הם "+a+". מה המספר?",
+    explain:(k>1?F(k,d)+" הם "+k+" חלקים שווים, וביחד הם "+L(a)+".<br>חלק אחד ("+F(1,d)+"): "+L(a+DV+k+EQ+m)+"<br>":F(1,d)+" הוא חלק אחד מתוך "+d+", והוא "+L(m)+".<br>")+"בכל המספר יש "+d+" חלקים כאלה: "+L(m+X+d+EQ+N)+"<br>בדיקה: "+F(k,d)+" מ-"+L(N)+" = "+L(a)+" ✓"+(N<=60&&m<=10?vis(dotsSvg(N,d,k)):""),
+    short:F(k,d)+" ממספר הם "+L(a)+": המספר "+L(N)};
+  q.hint1=function(p){if(p.n===a)return "זה החלק שידוע. כל המספר גדול יותר: יש בו "+d+" חלקים.";
+    return k>1?"קודם מוצאים חלק אחד: מחלקים את "+a+" ל-"+k+". ואז כופלים ב-"+d+".":"חלק אחד הוא "+a+". בכל המספר יש "+d+" חלקים כאלה."};
+  return numQ(q,N)}
+/* word problems use mostly non-unit fractions (3/4, 2/5) */
+function KN(d){return d>2&&Math.random()<.75?ri(2,d-1):1}
 function fqWord(){
   function dm(ds,lo,hi){for(var t=0;t<50;t++){var d=pick(ds),m=ri(2,10);if(d*m>=lo&&d*m<=hi)return [d,m]}return [ds[0],Math.ceil(lo/ds[0])]}
   var S=[
-    function(){var x=dm([2,3,4,5,6],18,36),d=x[0],m=x[1],k=ri(1,d-1);return {t:"בכיתה של "+WHO()+" יש "+d*m+" תלמידים. "+F(k,d)+" מהם מגיעים לבית הספר באופניים. כמה תלמידים מגיעים באופניים?",d:d,k:k,m:m,u:"תלמידים"}},
-    function(){var x=dm([3,4,5,6,8,10],20,80),d=x[0],m=x[1],k=ri(1,d-1);return {t:"אורך מסלול הרכיבה הוא "+d*m+" ק״מ. "+WHO()+" כבר רכב "+F(k,d)+" מהמסלול. כמה ק״מ הוא רכב?",d:d,k:k,m:m,u:"ק״מ"}},
-    function(){var x=dm([3,4,5,6,8,10],20,80),d=x[0],m=x[1],k=ri(1,d-1);return {t:"אורך מסלול הרכיבה הוא "+d*m+" ק״מ. "+WHO()+" כבר רכב "+F(k,d)+" מהמסלול. כמה ק״מ נשאר לו לרכוב?",d:d,k:k,m:m,u:"ק״מ",rem:"זה כמה שהוא כבר רכב"}},
-    function(){var d=pick([2,3,4,5,6,10]),k=ri(1,d-1);return {t:"בשעה יש 60 דקות. "+WHO()+" רכב "+F(k,d)+" שעה. כמה דקות הוא רכב?",d:d,k:k,m:60/d,u:"דקות"}},
-    function(){var x=dm([2,3,4,5,8,10],20,100),d=x[0],m=x[1],k=ri(1,d-1);return {t:"בקופת החיסכון של "+WHO()+" היו "+d*m+" ₪. הוא הוציא "+F(k,d)+" מהכסף על פנס לאופניים. כמה שקלים עלה הפנס?",d:d,k:k,m:m,u:"₪"}},
-    function(){var x=dm([2,3,4,5,6],12,40),d=x[0],m=x[1],k=ri(1,d-1);return {t:"בשקית היו "+d*m+" סוכריות. "+WHO()+" נתן לחברים "+F(k,d)+" מהסוכריות. כמה סוכריות נשארו לו?",d:d,k:k,m:m,u:"סוכריות",rem:"זה כמה שהוא נתן"}},
-    function(){var x=dm([2,3,4,5,6,8],16,48),d=x[0],m=x[1],k=ri(1,d-1);return {t:"בחנות אופניים יש "+d*m+" אופניים. "+F(k,d)+" מהם אופני הרים. כמה אופני הרים יש בחנות?",d:d,k:k,m:m,u:"אופניים"}}];
+    function(){var x=dm([2,3,4,5,6],18,36),d=x[0],m=x[1],k=KN(d);return {t:"בכיתה של "+WHO()+" יש "+d*m+" תלמידים. "+F(k,d)+" מהם מגיעים לבית הספר באופניים. כמה תלמידים מגיעים באופניים?",d:d,k:k,m:m,u:"תלמידים"}},
+    function(){var x=dm([3,4,5,6,8,10],20,80),d=x[0],m=x[1],k=KN(d);return {t:"אורך מסלול הרכיבה הוא "+d*m+" ק״מ. "+WHO()+" כבר רכב "+F(k,d)+" מהמסלול. כמה ק״מ הוא רכב?",d:d,k:k,m:m,u:"ק״מ"}},
+    function(){var x=dm([3,4,5,6,8,10],20,80),d=x[0],m=x[1],k=KN(d);return {t:"אורך מסלול הרכיבה הוא "+d*m+" ק״מ. "+WHO()+" כבר רכב "+F(k,d)+" מהמסלול. כמה ק״מ נשאר לו לרכוב?",d:d,k:k,m:m,u:"ק״מ",rem:"זה כמה שהוא כבר רכב"}},
+    function(){var d=pick([2,3,4,5,6,10]),k=KN(d);return {t:"בשעה יש 60 דקות. "+WHO()+" רכב "+F(k,d)+" שעה. כמה דקות הוא רכב?",d:d,k:k,m:60/d,u:"דקות"}},
+    function(){var x=dm([2,3,4,5,8,10],20,100),d=x[0],m=x[1],k=KN(d);return {t:"בקופת החיסכון של "+WHO()+" היו "+d*m+" ₪. הוא הוציא "+F(k,d)+" מהכסף על פנס לאופניים. כמה שקלים עלה הפנס?",d:d,k:k,m:m,u:"₪"}},
+    function(){var x=dm([2,3,4,5,6],12,40),d=x[0],m=x[1],k=KN(d);return {t:"בשקית היו "+d*m+" סוכריות. "+WHO()+" נתן לחברים "+F(k,d)+" מהסוכריות. כמה סוכריות נשארו לו?",d:d,k:k,m:m,u:"סוכריות",rem:"זה כמה שהוא נתן"}},
+    function(){var x=dm([2,3,4,5,6,8],16,48),d=x[0],m=x[1],k=KN(d);return {t:"בחנות אופניים יש "+d*m+" אופניים. "+F(k,d)+" מהם אופני הרים. כמה אופני הרים יש בחנות?",d:d,k:k,m:m,u:"אופניים"}}];
   var s=pick(S)(),d=s.d,k=s.k,m=s.m,N=d*m,part=k*m,a=s.rem?N-part:part;
   var q={time:60,label:"שאלה מילולית",body:'<p class="qtext">'+s.t+'</p><div class="ansline">תשובה: '+slot(0)+" "+s.u+'</div>'};
   q.explain=(k>1?"קודם "+F(1,d)+": "+L(N+DV+d+EQ+m)+"<br>ואז "+F(k,d)+": "+L(m+X+k+EQ+part):F(1,d)+" מ-"+L(N)+": "+L(N+DV+d+EQ+m))+(s.rem?"<br>"+s.rem+". נשאר: "+L(N+MI+part+EQ+a):"")+"<br>התשובה: "+L(a)+" "+s.u+(N<=60&&m<=10?vis(dotsSvg(N,d,k)):"");
@@ -986,6 +1034,25 @@ function fqWord(){
     if(p.n===m&&k>1)return "מצאת את "+F(1,d)+" – יפה! 👍 אבל צריך "+F(k,d)+": "+k+" חלקים כאלה.";
     return "קודם מחלקים את "+N+" ל-"+d+" חלקים שווים, ואחר כך לוקחים "+k+" חלקים כאלה."+(s.rem?" ובסוף בודקים כמה נשאר.":"")};
   return numQ(q,a)}
+
+/* ---------- 💡 how do I solve it: this question's worked explanation, step by step ----------
+   before answering; the question then gives no points, and it comes back a little later to try alone */
+function howSteps(h){return '<ol class="steps">'+String(h).split(/<br\s*\/?>/).map(function(p){return "<li>"+p+"</li>"}).join("")+"</ol>"}
+function showHow(){
+  if(!R||!R.q||R.locked||!state.playing||R.q.eng)return;
+  var q=R.q;R.locked=true;clearTimer();R.helped=(R.helped||0)+1;$("btnHow").style.display="none";
+  if(R.missed.indexOf(q)<0)R.missed.push(q);R.retry.push({q:q,due:R.asked+3});
+  if(q.ans&&(q.kind==="two"||q.kind==="num"))$("qBody").querySelectorAll(".slot").forEach(function(s){var f=+s.dataset.f;s.textContent=q.ans[f];s.classList.add("right");s.classList.remove("act")});
+  if(q.kind==="tap")tapMark(q,null);
+  if(q.kind==="mc"){$("opts").querySelectorAll(".opt").forEach(function(b,i){if(i===q.ci)b.classList.add("right");b.disabled=true});$("opts").style.display="grid"}
+  var fb=$("fb");fb.className="fb";
+  fb.innerHTML='<div class="explain how"><div class="exh"><b class="h">💡 ככה פותרים:</b><button class="spk" id="spkEx" aria-label="הקראת ההסבר" title="הקראת ההסבר">🔊</button></div>'+howSteps(q.explain)+
+    '<small style="color:var(--muted)">על שאלה עם הסבר לא מקבלים נקודות. היא תחזור עוד מעט, ואז אפשר לפתור לבד 🙂</small></div>';
+  $("gwrap").className=$("gwrap").className+" g-done";
+  stopSpeech();if(store.autoRead)say(explainSpeech(),$("spkEx"));
+  setTimeout(function(){$("fb").scrollIntoView({behavior:"smooth",block:"start"})},150);
+}
+$("btnHow").onclick=showHow;
 
 var GEN={fpart:gFpart,fline:gFline,fadd:gFadd,fmix:gFmix,fqty:gFqty};
 function genQ(tp){var q=GEN[tp]();q.topic=tp;if(!q.kind)q.kind="mc";return q}
@@ -1085,7 +1152,7 @@ function nextQ(){clearTimer();
   $("opts").style.display="";
   var w=$("gwrap");w.className=q.kind==="mc"?"g-mc":q.kind==="ldiv"?"g-pad g-ld":q.kind==="type"?"g-kb":q.kind==="tiles"?"g-tiles":q.kind==="tap"?"g-tap":"g-pad";
   if(q.eng)engRender(q);
-  $("hint").textContent=q.hint||"";
+  $("hint").textContent=q.hint||"";$("btnHow").style.display=q.eng?"none":"";
   if(q.kind==="mc"){var o=$("opts");o.className="opts"+((q.wide||q.shown.length<3&&!q.pics)?" one":"");
     o.innerHTML=q.shown.map(function(op,i){return '<div class="optw"><button class="opt" data-i="'+i+'">'+op.h+'</button><button class="spk" data-o="'+i+'" aria-label="הקראת התשובה" title="הקראת התשובה">🔊</button></div>'}).join("")}
   $("qBody").querySelectorAll(".slot").forEach(function(s){s.addEventListener("click",function(){if(!R.locked){R.f=+s.dataset.f;paint()}})});
@@ -1114,7 +1181,7 @@ function judge(choice,timeout){
   var q=R.q;
   if(!timeout){if(q.kind==="num"&&R.inp[0]===""){askField(q,0);return}if(q.kind==="two"){wholeIn(q,R.inp);var nf0=needField(q,R.inp);if(nf0>=0){R.f=nf0;paint();askField(q,nf0);return}}
     if(q.hint1&&!q.tried&&q.kind!=="mc"&&!isRight(q,choice)){secondTry(q,choice);return}}
-  R.locked=true;clearTimer();
+  R.locked=true;clearTimer();$("btnHow").style.display="none";
   var ok=!timeout&&isRight(q,choice),c=$("qcard"),fb=$("fb"),per=R.per[q.topic]||(R.per[q.topic]={c:0,w:0}),ts=store.topic[q.topic]||(store.topic[q.topic]={c:0,w:0});
   if(q.eng)engRecord(q,ok);
   if(q.kind==="type")engType();
@@ -2168,7 +2235,7 @@ body.girl{
 (function(){
 var C=window.__cloud,$=function(id){return document.getElementById(id)},G="b";
 var MAP={"ספור":"ספרי","כתוב":"כתבי","לחץ":"לחצי","בחר":"בחרי","שים":"שימי","נסה":"נסי","בוא":"בואי","מוכן":"מוכנה","אלוף":"אלופה",
-  "תותח":"תותחית","בטוח":"בטוחה","הקש":"הקישי","תקן":"תקני","תוכל":"תוכלי","אתה":"את","רכיבה":"החלקה","לרכיבה":"להחלקה",
+  "תותח":"תותחית","בטוח":"בטוחה","הקש":"הקישי","תקן":"תקני","תוכל":"תוכלי","אתה":"את","יודע":"יודעת","רכיבה":"החלקה","לרכיבה":"להחלקה",
   "האופניים":"הרולרבליידס","לאופניים":"לרולרבליידס","אופניים":"רולרבליידס","רוכב":"מחליקה","רוכבים":"מחליקים","לרכוב":"להחליק","רוכבת":"מחליקה"};
 var RX=new RegExp("(^|[^א-ת])(ו?)("+Object.keys(MAP).sort(function(a,b){return b.length-a.length}).join("|")+")(?=[^א-ת]|$)","g");
 function gtx(s){if(G!=="g"||!s)return s;return String(s).replace(RX,function(m,a,v,w){return a+v+MAP[w]}).replace(/🚴|🚲|🚵/g,"🛼")}
