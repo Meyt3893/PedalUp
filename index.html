@@ -668,6 +668,20 @@ function needField(q,v){
   if(!w&&!n&&!d)return q.f0||0;
   if(q.mixReq&&!w)return 0;
   if(n&&!d)return 2;if(d&&!n)return 1;return -1}
+/* a whole number typed alone in the numerator (the cursor starts there): read it as that whole number when that is the answer
+   (3/4 + 1/4 = 1), so a right answer never waits on an empty box */
+function wholeIn(q,v){
+  if(q.kind!=="two")return;
+  if((q.nf||2)===2){if(v[0]!==""&&v[1]===""&&q.check([v[0],"1"]))v[1]="1";return}
+  if(v[0]===""&&v[1]!==""&&v[2]===""&&q.check([v[1],"",""])){v[0]=v[1];v[1]=""}
+}
+/* ✓ with a box still empty: say which one, instead of doing nothing */
+function askField(q,f){
+  var t=q.kind==="num"?"כתוב את התשובה במספר ✍&#xFE0F;":q.mixReq&&f===0?"כאן כותבים מספר מעורב: את השלמים בתיבה הגדולה, ואת השבר שנשאר לידה ✍&#xFE0F;":
+    f===0&&(q.nf||2)===3?"כתוב מספר בתיבה הגדולה ✍&#xFE0F;":f===2||((q.nf||2)===2&&f===1)?"חסר המכנה: כתוב מספר בתיבה שלמטה ✍&#xFE0F;":"חסר המונה: כתוב מספר בתיבה שלמעלה ✍&#xFE0F;";
+  var fb=$("fb");fb.className="fb";fb.innerHTML='<div class="hint1"><span>'+G_TX(t)+'</span></div>';
+  var c=$("qcard");c.classList.remove("shake");void c.offsetWidth;c.classList.add("shake");
+}
 /* typed answer = this value (any equal fraction, or a mixed number when there is a whole box) */
 function fracQ(q,n,d){q.kind="two";q.nf=2;q.ans=[String(n),String(d)];q.f0=0;
   q.check=function(v){var p=pv(q,v);return p.d>0&&eqv(pval(p),[n,d])};
@@ -1055,7 +1069,7 @@ function startRound(retryQs,topics){
   $("timer").style.display=state.mode==="race"?"block":"none";
   show("sGame");placeGifts();updateHud();nextQ();
 }
-function nextQ(){
+function nextQ(){clearTimer();
   clearTimer();stopSpeech();
   var due=null;for(var i=0;i<R.retry.length;i++){if(R.retry[i].due<=R.asked&&R.retry[i].q!==R.q){due=R.retry.splice(i,1)[0];break}}
   var q;
@@ -1098,7 +1112,7 @@ function isRight(q,choice){
 function judge(choice,timeout){
   if(R.locked)return;
   var q=R.q;
-  if(!timeout){if(q.kind==="num"&&R.inp[0]==="")return;if(q.kind==="two"){var nf0=needField(q,R.inp);if(nf0>=0){R.f=nf0;paint();return}}
+  if(!timeout){if(q.kind==="num"&&R.inp[0]===""){askField(q,0);return}if(q.kind==="two"){wholeIn(q,R.inp);var nf0=needField(q,R.inp);if(nf0>=0){R.f=nf0;paint();askField(q,nf0);return}}
     if(q.hint1&&!q.tried&&q.kind!=="mc"&&!isRight(q,choice)){secondTry(q,choice);return}}
   R.locked=true;clearTimer();
   var ok=!timeout&&isRight(q,choice),c=$("qcard"),fb=$("fb"),per=R.per[q.topic]||(R.per[q.topic]={c:0,w:0}),ts=store.topic[q.topic]||(store.topic[q.topic]={c:0,w:0});
@@ -1115,9 +1129,10 @@ function judge(choice,timeout){
     fb.textContent=G_TX(q.tried?"יפה, תיקנת":PRAISE[Math.floor(Math.random()*PRAISE.length)]+NAME())+"!"+(R.streak>=3?" 🔥 "+R.streak+" ברצף":"")+"  +"+pts;
     paint();hop();sCorrect();updateHud();
     var g1=gearCount(),newPrize=g1>g0;if(newPrize){store.gear=g1;save()}
+    var R0=R;watchAdv(R0,q);
     setTimeout(function(){
-      if(newPrize)showPrize(g1-1,afterCorrect);
-      else afterCorrect()
+      if(newPrize)showPrize(g1-1,advFrom(R0,q));
+      else advFrom(R0,q)()
     },q.kind==="mc"?900:q.kind==="ldiv"?1300:750);
   }else{
     R.streak=0;R.wrong++;per.w++;ts.w++;SV.since++;
@@ -1133,7 +1148,11 @@ function judge(choice,timeout){
     setTimeout(function(){$("btnNext").scrollIntoView({behavior:"smooth",block:"nearest"})},150);
   }
 }
-function afterCorrect(){if(R.correct>=R.target)finish();else nextQ()}
+function afterCorrect(){if(R.correct>=R.target)finish();else{try{nextQ()}catch(e){if(window.console)console.error("nextQ",e);nextQ()}}}
+function onQ(R0,q){return R===R0&&R0.q===q&&R0.locked&&state.playing&&$("sGame").classList.contains("on")}
+function advFrom(R0,q){return function(){if(onQ(R0,q))afterCorrect()}}
+function watchAdv(R0,q){setTimeout(function(){if(!onQ(R0,q))return;if($("mPrize").classList.contains("on")){watchAdv(R0,q);return}
+  if(window.console)console.warn("PedalUp: moved on by the safety net");prizeCb=null;afterCorrect()},2500)}
 function updateHud(){
   $("gScore").textContent=R.score;$("gStreak").textContent=R.streak;
   var n=gearCount();$("gPrize").textContent=n>=ITEMS.length?"⭐":nextGearPts()+" נק׳";
@@ -1702,7 +1721,7 @@ seg("mode",function(b){state.mode=b.dataset.m});
 $("btnStart").onclick=function(){ctx();startRound(null)};
 $("pad").addEventListener("click",function(e){var b=e.target.closest("button");if(b)press(b.dataset.k)});
 $("opts").addEventListener("click",function(e){var b=e.target.closest(".opt");if(b&&R&&!R.locked)judge(+b.dataset.i,false)});
-$("btnNext").onclick=function(){nextQ()};
+$("btnNext").onclick=function(){if(R&&R.locked)nextQ()};
 $("btnQuit").onclick=function(){if(R&&(R.correct+R.wrong)>0)finish();else{clearTimer();state.playing=false;show("sSetup")}};
 $("btnAgain").onclick=function(){if(R&&R.eng)show("sSetup");else startRound(null)};
 $("btnMissed").onclick=function(){if(R&&R.eng){var its=[];R.missed.forEach(function(q){if(its.indexOf(q.item)<0)its.push(q.item)});engStart("practice",null,its);return}var ts=[];R.missed.forEach(function(q){if(ts.indexOf(q.topic)<0)ts.push(q.topic)});startRound(R.missed.slice(),ts)};
