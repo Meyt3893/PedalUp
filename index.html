@@ -555,6 +555,7 @@ body:not(.nospeech) .opt{padding-left:42px;padding-right:42px}
     <div class="setrow"><span>אני <b id="setGenderTxt">בן</b></span><button class="pill" id="setGender">החלפה לבת</button></div>
     <div class="setrow"><span>כיתה: <b id="setClass">בלי כיתה</b></span><button class="pill" id="setClassBtn">הצטרפות</button></div>
     <div class="setrow"><span>מחובר בתור <b id="setUser" dir="ltr"></b></span><button class="pill" id="setLogout">🚪 יציאה</button></div>
+    <div class="setrow" id="setAdminRow" style="display:none"><span>📊 ניהול האתר</span><a class="pill" id="setAdmin" href="admin.html" style="display:inline-flex;align-items:center;text-decoration:none;color:inherit">ניהול</a></div>
     <div class="setrow"><span>איפוס כל ההתקדמות<br><small class="sub">ציוד, שיאים ונושאים לחיזוק</small></span><button class="pill danger" id="setReset">איפוס</button></div>
   </div>
 </div>
@@ -1923,6 +1924,7 @@ function newest(server){
 function enter(j){
   token=j.token||token;user=j.username;ls(SESS,token);
   window.__cloud.setGender(j.gender);
+  $("setAdminRow").style.display=j.is_admin?"":"none";
   window.__cloud.setClass(j.class,j.class_points,j.child_name);
   window.__cloud.enter(j.child_name,newest(j.progress||null));
   window.__cloud.syncBase();
@@ -1976,10 +1978,11 @@ window.__cloud.onSave=function(){
 ["topics","tables","len","mode"].forEach(function(id){var el=$(id);if(el)el.addEventListener("click",function(){window.__cloud.onSave()})});
 document.addEventListener("visibilitychange",function(){if(document.visibilityState==="hidden")flush(true)});
 window.addEventListener("pagehide",function(){flush(true)});
-function expired(){token=null;ls(SESS,null);window.__cloud.leave();window.__cloud.setClass(null,0,"");window.__cloud.setGender("b");showGate();say("צריך להיכנס שוב 🙂",true)}
+function noAdmin(){$("setAdminRow").style.display="none"}
+function expired(){token=null;noAdmin();ls(SESS,null);window.__cloud.leave();window.__cloud.setClass(null,0,"");window.__cloud.setGender("b");showGate();say("צריך להיכנס שוב 🙂",true)}
 window.__cloud.logout=function(){
   if(dirty&&token)flush(true);
-  var t=token;token=null;ls(SESS,null);
+  var t=token;token=null;ls(SESS,null);noAdmin();
   if(t)rpc("pp_logout",{p_token:t},true).catch(function(){});
   window.__cloud.leave();window.__cloud.setClass(null,0,"");window.__cloud.setGender("b");mode(false);showGate();
 };
