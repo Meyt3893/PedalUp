@@ -82,7 +82,11 @@ h2{font-size:18px;margin:0 0 10px;font-weight:800}
 .garagebtn .mini{display:flex;gap:4px;flex-wrap:wrap;flex:1}
 .garagebtn .mini img{width:30px;height:30px;border-radius:8px;object-fit:cover}
 .weak{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
-.weak span{background:var(--warn-bg);color:var(--warn);border-radius:10px;padding:3px 10px;font-weight:600;font-size:15px}
+.weak .wchip{font:inherit;border:0;cursor:pointer;display:inline-flex;align-items:center;gap:4px}
+.weak .wchip:active{transform:scale(.96)}
+.weak .wchip .en{background:none;padding:0;margin:0;color:inherit;font-weight:800}
+.wkhint{margin:8px 0 0;font-size:13px}
+.weak span,.weak .wchip{background:var(--warn-bg);color:var(--warn);border-radius:10px;padding:3px 10px;font-weight:600;font-size:15px}
 
 /* game: trail banner */
 .trail{position:relative;border-radius:22px;overflow:hidden;padding:10px 12px 14px;background:#0b1326 var(--hero) 50% 62%/cover;border:1px solid var(--line)}
@@ -446,9 +450,10 @@ body:not(.nospeech) .opt{padding-left:42px;padding-right:42px}
     <button class="big" id="btnStart">יוצאים לדרך! 🏁</button>
   </div>
   <div class="card" id="weakCard" style="display:none">
-    <div id="weakBox" style="display:none;margin-top:12px">
-      <b>כדאי לחזק:</b>
+    <div id="weakBox" style="display:none">
+      <b id="weakH">כדאי לחזק:</b>
       <div class="weak" id="weakList"></div>
+      <p class="sub wkhint" id="weakHint"></p>
     </div>
   </div>
 </section>
@@ -1589,8 +1594,6 @@ function renderTopics(){
 function refreshSetup(){
   var n=gearCount();var m="";for(var i=0;i<n;i++)m+=icon(i);$("miniGear").innerHTML=m||'<span class="sub" style="font-weight:500">התחנה הראשונה אחרי '+GEARPTS[0]+' נקודות</span>';
   if(window.__cloud&&window.__cloud.track)window.__cloud.track();
-  var weak=TOPICS.filter(function(t){var s=store.topic[t.id];return s&&s.w>=2&&s.w>=s.c*.35}).map(function(t){return "<span>"+t.ic+" "+t.n+"</span>"});
-  $("weakBox").style.display=$("weakCard").style.display=weak.length?"block":"none";$("weakList").innerHTML=weak.join("");
   renderTopics();setCat(state.cat||"math");
 }
 
@@ -2060,7 +2063,7 @@ function renderTrail(){
   $("btnMission").style.display=s.can?"block":"none";
   $("btnReview").className="big"+(s.can?" alt":"");$("btnReview").style.display=n?"block":"none";
   var weak=EI.filter(function(it){var r=eRec(it.i);return it.t==="w"&&r&&r.l===0}).slice(0,8);
-  $("engWeak").style.display=weak.length?"block":"none";$("engWeakList").innerHTML=weak.map(function(w){return "<span>"+EN(w.en)+" – "+w.he+"</span>"}).join("");
+  $("engWeak").style.display="none";$("engWeakList").innerHTML=weak.map(function(w){return "<span>"+EN(w.en)+" – "+w.he+"</span>"}).join("");
 }
 $("btnMission").onclick=function(){var n=ENG().days.length;if(eAvail().can)openIntro(n,false)};
 $("btnReview").onclick=function(){ctx();engStart("review",null)};
@@ -2087,7 +2090,22 @@ $("btnIntroGo").onclick=function(){close("mIntro");ctx();engStart("station",intr
 
 /* category on the opening screen */
 function setCat(c){if(c==="torah"&&!torahOK())c="math";state.cat=c;document.querySelectorAll("#cat button").forEach(function(b){b.classList.toggle("on",b.dataset.c===c)});
-  $("mathCard").style.display=c==="math"?"":"none";$("engCard").style.display=c==="eng"?"":"none";$("torahCard").style.display=c==="torah"?"":"none";if(c==="eng")renderTrail()}
+  $("mathCard").style.display=c==="math"?"":"none";$("engCard").style.display=c==="eng"?"":"none";$("torahCard").style.display=c==="torah"?"":"none";if(c==="eng")renderTrail();renderWeak()}
+function wkTopics(list){return list.filter(function(t){var s=store.topic[t.id];return s&&s.w>=2&&s.w>=s.c*.35})}
+function wkEng(){var sr=store.eng&&store.eng.sr;if(!sr)return [];
+  return EI.filter(function(it){var r=sr[it.i];return r&&r.l===0}).sort(function(a,b){return sr[b.i].d-sr[a.i].d||a.i-b.i}).slice(0,6)}
+function renderWeak(){
+  var c=state.cat,h="",n=0;
+  if(c==="eng")wkEng().forEach(function(it){n++;h+='<button class="wchip" data-w="e:'+it.i+'">'+(it.t==="w"?EN(it.en)+" – "+it.he:"📘 "+ESK[it.k].n)+'</button>'});
+  else (c==="torah"?wkTopics(TTOPICS):wkTopics(TOPICS)).forEach(function(t){n++;h+='<button class="wchip" data-w="'+(c==="torah"?"t:":"m:")+t.id+'">'+t.ic+" "+t.n+'</button>'});
+  $("weakH").textContent=c==="eng"?"כדאי לחזק באנגלית:":c==="torah"?"כדאי לחזק בתורה:":"כדאי לחזק בחשבון:";
+  $("weakHint").textContent=c==="eng"?"לוחצים על מילה כדי לתרגל אותה 👆":"לוחצים על נושא כדי לתרגל אותו 👆";
+  $("weakList").innerHTML=h;$("weakBox").style.display=$("weakCard").style.display=n?"block":"none";
+}
+$("weakList").addEventListener("click",function(e){var b=e.target.closest(".wchip");if(!b)return;var w=b.dataset.w.split(":"),id=w[1];ctx();
+  if(w[0]==="m"&&TBY[id])startRound(null,[id]);
+  else if(w[0]==="t"&&TBY[id]&&torahOK())startRound(null,[id]);
+  else if(w[0]==="e"){var i=+id,more=wkEng().map(function(it){return it.i}).filter(function(x){return x!==i}).slice(0,5);engStart("practice",null,[i,i,i].concat(more))}});
 $("cat").addEventListener("click",function(e){var b=e.target.closest("button");if(b){setCat(b.dataset.c);save()}});
 function catSpeech(){return "מה לומדים היום? חשבון, אנגלית"+(torahOK()?", או תורה. ":". ")+(state.cat==="eng"?"עכשיו בחרת אנגלית.":state.cat==="torah"?"עכשיו בחרת תורה.":"עכשיו בחרת חשבון.")}
 function trailSpeech(){var s=engStatus();return "מסלול האנגלית. כל יום משימה קצרה, ובכל משימה מתקדמים תחנה אחת במסלול. "+speakText(s.txt)}
@@ -2385,7 +2403,11 @@ window.__cloud.onSave=function(){
   schedule();
 };
 ["topics","tables","len","mode"].forEach(function(id){var el=$(id);if(el)el.addEventListener("click",function(){window.__cloud.onSave()})});
-document.addEventListener("visibilitychange",function(){if(document.visibilityState==="hidden")flush(true)});
+document.addEventListener("visibilitychange",function(){if(document.visibilityState==="hidden")flush(true);else ping()});
+/* online on the class track: a cheap mark every minute while the game is open and on screen */
+var lastPing=0;
+function ping(){if(!token||document.visibilityState!=="visible"||Date.now()-lastPing<50000)return;lastPing=Date.now();rpc("pp_ping",{p_token:token}).catch(function(){})}
+setInterval(ping,60000);
 window.addEventListener("pagehide",function(){flush(true)});
 function noAdmin(){$("setAdminRow").style.display="none"}
 function expired(){token=null;noAdmin();ls(SESS,null);window.__cloud.leave();window.__cloud.setClass(null,0,"");window.__cloud.setGender("b");showGate();say("צריך להיכנס שוב 🙂",true)}
@@ -2416,6 +2438,8 @@ else showGate();
 .cllist li{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:14px;margin-top:6px;background:rgba(255,255,255,.04);border:1px solid var(--line)}
 .cllist li.me{border-color:var(--accent);background:rgba(var(--acc-rgb),.10)}
 .cllist .rk{width:30px;text-align:center;font-weight:800;color:var(--muted);flex:none}
+.cllist .odot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#e5484d;margin-inline-end:7px;vertical-align:middle;box-shadow:0 0 0 1.5px rgba(0,0,0,.25)}
+.cllist .odot.on{background:#2fd26f}
 .cllist .nm{flex:1;font-weight:700;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cllist .pt{font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums;white-space:nowrap}
 .cllist .pt small{color:var(--muted);font-weight:500}
@@ -2469,8 +2493,10 @@ function road(rows){
       (got?'<path d="M'+(x-5)+' 17.5l3.5 3.5 6.5-7" stroke="#0a1206" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>':'<text x="'+x+'" y="21.5" font-size="12" text-anchor="middle">🎁</text>')});
   // the bikes, mirrored to ride toward the flag; the names at the start
   rows.forEach(function(r,i){var y=TOP+i*LH,x=X(r.c),lap=Math.floor(r.c/L);
-    s+='<text x="'+(W-12)+'" y="'+(y+21)+'" direction="rtl" font-size="17" font-weight="'+(r.me?800:600)+'" fill="'+(r.me?A:"#f1f5ff")+'">'+esc(short(r.n))+'</text>'+
-       '<text x="'+(W-12)+'" y="'+(y+38)+'" direction="rtl" font-size="12.5" fill="#9fb0cf">'+r.c+' נק׳'+(lap?' · סיבוב '+(lap+1):'')+'</text>';
+    var nx=W-12-(r.on===undefined?0:13);
+    if(r.on!==undefined)s+='<circle class="odot'+(r.on?' on':'')+'" cx="'+(W-14)+'" cy="'+(y+15)+'" r="4.5" fill="'+(r.on?"#2fd26f":"#e5484d")+'" stroke="rgba(0,0,0,.35)" stroke-width="1"><title>'+(r.on?"מחובר/ת עכשיו":"לא מחובר/ת")+'</title></circle>';
+    s+='<text x="'+nx+'" y="'+(y+21)+'" direction="rtl" font-size="17" font-weight="'+(r.me?800:600)+'" fill="'+(r.me?A:"#f1f5ff")+'">'+esc(short(r.n))+'</text>'+
+       '<text x="'+nx+'" y="'+(y+38)+'" direction="rtl" font-size="12.5" fill="#9fb0cf">'+r.c+' נק׳'+(lap?' · סיבוב '+(lap+1):'')+'</text>';
     if(r.me)s+='<circle cx="'+x+'" cy="'+(y+21)+'" r="17" fill="rgba('+AR+',.45)" filter="url(#glow)"/>';
     s+='<g transform="translate('+(x+22)+' '+(y+6)+') scale(-0.92 0.92)">'+C.vehicle(r.v,r.me?A:r.v==="g"?"#ff8cc4":"#7fa6ff")+'</g>'});
   return s+'</svg>';
@@ -2494,14 +2520,14 @@ C.track=function(){
 /* the track screen */
 function render(){
   var rows;
-  if(cls&&board&&board.players.length){rows=board.players.map(function(r){return {n:r.n,c:r.me?Math.max(r.c,C.trackPos()):r.c,me:r.me,v:r.me?C.gender():r.v}});rows.sort(function(a,b){return b.c-a.c})}
+  if(cls&&board&&board.players.length){rows=board.players.map(function(r){return {n:r.n,c:r.me?Math.max(r.c,C.trackPos()):r.c,me:r.me,v:r.me?C.gender():r.v,on:r.me||!!r.on}});rows.sort(function(a,b){return b.c-a.c})}
   else rows=[{n:kid||"אני",c:C.trackPos(),me:true,v:C.gender()}];
   $("clTitle").textContent=cls?"🚲 המסלול הכיתתי":"🚲 המסלול שלי";
   $("clSub").textContent=cls?"כיתה "+cls.name+" · "+rows.length+(rows.length===1?" רוכב/ת":" רוכבים")+(rows.length===1?". עוד לא הצטרפו חברים – הם יופיעו כאן":""):"רוכבים לבד בינתיים. בכיתה רואים את כל החברים על אותו מסלול.";
   $("clTrack").innerHTML=road(rows);
   $("clListCard").style.display=cls?"block":"none";
   var rk=rank(rows),md=["🥇","🥈","🥉"];
-  $("clList").innerHTML=rows.map(function(r,i){return '<li'+(r.me?' class="me"':'')+'><span class="rk">'+(rk[i]<=3&&r.c>0?md[rk[i]-1]:rk[i])+'</span><span class="nm">'+esc(r.n)+(r.me?' <small style="color:var(--muted);font-weight:500">(אני)</small>':'')+'</span><span class="pt">'+r.c+' <small>נק׳</small></span></li>'}).join("");
+  $("clList").innerHTML=rows.map(function(r,i){return '<li'+(r.me?' class="me"':'')+'><span class="rk">'+(rk[i]<=3&&r.c>0?md[rk[i]-1]:rk[i])+'</span><span class="nm">'+(r.on===undefined?'':'<i class="odot'+(r.on?' on':'')+'" title="'+(r.on?"מחובר/ת עכשיו":"לא מחובר/ת")+'"></i>')+esc(r.n)+(r.me?' <small style="color:var(--muted);font-weight:500">(אני)</small>':'')+'</span><span class="pt">'+r.c+' <small>נק׳</small></span></li>'}).join("");
   $("clSwitch").style.display=cls&&$("clJoin").style.display==="none"?"block":"none";
   $("clLeave").style.display=cls?"block":"none";
   $("clJoinH").textContent=cls?"החלפת כיתה":"הצטרפות לכיתה";
@@ -2514,6 +2540,7 @@ function load(){
     if($("sClass").classList.contains("on"))render();C.track();
   }).catch(function(e){if(window.console)console.warn("track",e)});
 }
+setInterval(function(){if(cls&&$("sClass").classList.contains("on")&&document.visibilityState==="visible")load()},30000);
 C.openTrack=function(join){
   leaveArm=false;$("clLeave").textContent="יציאה מהכיתה";$("clMsg").textContent="";
   $("clJoin").style.display=join||!cls?"block":"none";
