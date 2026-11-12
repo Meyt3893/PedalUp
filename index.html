@@ -383,6 +383,26 @@ body:not(.nospeech) .opt{padding-left:42px;padding-right:42px}
 body:not(.girl) .topic.mix.on{background:linear-gradient(to left,#5cc8ff 0%,#2f8be0 24%,#1d6cc0 62%,#165aa6 100%);color:#fff;box-shadow:0 6px 18px rgba(22,90,166,.35),inset 0 1px 0 rgba(255,255,255,.25);text-shadow:0 1px 2px rgba(4,32,58,.45)}
 body:not(.girl) .topic.mix.on small{color:rgba(255,255,255,.9)}
 body:not(.girl) .topic.mix.on .ti{background:rgba(255,255,255,.22);text-shadow:none}
+.card>h2,.card>.h2s{font-size:20px;font-weight:800;line-height:1.25;margin:0 0 8px}
+.card>h2.sect,#weakH,#engWeak>b{display:block;font-size:15.5px;font-weight:700;line-height:1.3;color:var(--muted);letter-spacing:.2px;margin:24px 0 10px}
+.card>p.sub{font-size:14.5px;font-weight:400;line-height:1.6;color:var(--muted);max-width:44em;margin:0 0 18px}
+.card>p.sub:last-child,.card>p.sub.tcline{margin-bottom:0}
+.card>p.sub+p.sub{margin-top:-10px}
+.topics{gap:10px}
+.topic small,.seg button small{font-size:12.5px;font-weight:400;color:var(--muted);line-height:1.35}
+.topic.mix.on small{color:inherit;opacity:.9}
+.card>.big:first-of-type{margin-top:18px}
+@media (max-width:440px){
+  header{flex-wrap:wrap;row-gap:4px}
+  .brand{display:contents}
+  .brand b{order:0;flex:1 1 0;min-width:0;font-size:18px}
+  header .hbtns{order:1}
+  .brand small{order:2;flex:1 0 100%;font-size:12.5px;line-height:1.3}
+  .brand small span{display:inline}
+  body.on-setup .brand b{visibility:hidden}
+  body.on-setup .brand small{display:none}
+}
+@media (max-width:370px){header .hbtns{gap:5px}header .iconbtn,header .ctag{width:40px;min-width:40px;height:40px}}
 </style>
 </head>
 <body>
@@ -401,7 +421,7 @@ body:not(.girl) .topic.mix.on .ti{background:rgba(255,255,255,.22);text-shadow:n
 <!-- SETUP -->
 <section class="screen on" id="sSetup">
   <div class="hero" role="img" aria-label="ילד רוכב על אופני הרים בשביל עפר בשקיעה"><div class="himg"></div>
-    <div class="heroTxt"><span class="tag">אימון למבחן</span><h1><span dir="ltr">PedalUp</span></h1><p>לומדים, צוברים נקודות ורוכבים קדימה 🚴</p></div></div>
+    <div class="heroTxt"><h1><span dir="ltr">PedalUp</span></h1><p>לומדים, צוברים נקודות ורוכבים קדימה 🚴</p></div></div>
   <div class="card" style="position:relative" id="helloCard">
     <button class="spk corner" id="spkHello" aria-label="הקראה בקול" title="הקראה בקול">🔊</button>
     <p class="hello padl" id="helloTxt">שלום 👋
@@ -438,7 +458,7 @@ body:not(.girl) .topic.mix.on .ti{background:rgba(255,255,255,.22);text-shadow:n
     <h2 class="h2s"><span>פרשת במדבר 📜</span><button class="spk" id="spkTorah" aria-label="הקראה בקול" title="הקראה בקול">🔊</button></h2>
     <p class="sub">שאלות הבנה על הפרשה, מפרק א׳ עד פרק ד׳ פסוק כ׳. אחרי כל תשובה יש הסבר ואיפה זה נכתב – אפשר לפתוח חומש ולבדוק 📖</p>
     <div class="topics" id="ttopics"></div>
-    <h2 style="margin-top:16px">אורך הסיבוב</h2>
+    <h2 class="sect">אורך הסיבוב</h2>
     <div class="seg" id="tlen">
       <button data-n="10" class="on">קצר<small>10 תשובות נכונות</small></button>
       <button data-n="15">רגיל<small>15 תשובות נכונות</small></button>
@@ -449,13 +469,13 @@ body:not(.girl) .topic.mix.on .ti{background:rgba(255,255,255,.22);text-shadow:n
   <div class="card" id="mathCard">
     <h2 class="h2s"><span>על מה נתאמן היום?</span><button class="spk" id="spkTopics" aria-label="הקראה בקול" title="הקראה בקול">🔊</button></h2>
     <div class="topics" id="topics"></div>
-    <h2 style="margin-top:16px">אורך המסלול</h2>
+    <h2 class="sect">אורך המסלול</h2>
     <div class="seg" id="len">
       <button data-n="10">קצר<small>10 תשובות נכונות</small></button>
       <button data-n="20" class="on">רגיל<small>20 תשובות נכונות</small></button>
       <button data-n="30">ארוך<small>30 תשובות נכונות</small></button>
     </div>
-    <h2 style="margin-top:16px">מצב משחק</h2>
+    <h2 class="sect">מצב משחק</h2>
     <div class="seg two" id="mode">
       <button data-m="calm" class="on">רגוע 🚲<small>בלי שעון</small></button>
       <button data-m="race">אתגר ⏱<small>מרוץ נגד השעון</small></button>
@@ -2541,12 +2561,14 @@ function chrome(){
 
 /* the road: lanes from the start (right) to the flag (left), 🎁 stations at the gear points */
 function road(rows){
-  var A=C.accent(),AR=(getComputedStyle(document.body).getPropertyValue("--acc-rgb")||"182,242,58").trim(),L=C.TRACKLEN,W=600,R0=468,X0=40,LH=46,SY=C.sceneBg?C.SKY||0:0,TOP=34+SY,H=TOP+rows.length*LH+10,got0=C.gearCount(),nItems=C.ITEMS.length,meLap=0;
+  var A=C.accent(),AR=(getComputedStyle(document.body).getPropertyValue("--acc-rgb")||"182,242,58").trim(),L=C.TRACKLEN,W=600,R0=456,X0=40,LH=46,SY=C.sceneBg?C.SKY||0:0,TOP=34+SY,H=TOP+rows.length*LH+10,got0=C.gearCount(),nItems=C.ITEMS.length,meLap=0;
   function X(c){return R0-(c%L)/L*(R0-X0)}
   rows.forEach(function(r){if(r.me)meLap=Math.floor(r.c/L)});
   var s='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="המסלול"><defs><pattern id="chk" width="8" height="8" patternUnits="userSpaceOnUse"><rect width="8" height="8" fill="#fff"/><rect width="4" height="4" fill="#111"/><rect x="4" y="4" width="4" height="4" fill="#111"/></pattern>'+
     '<filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3.5"/></filter></defs>';
   if(C.sceneBg)s=s.replace('<svg ','<svg data-r0="'+R0+'" data-x0="'+X0+'" data-l="'+L+'" ')+C.sceneBg(meLap,W,H);
+  // the names column on its own panel, in the card's colour, so the names read over any scenery (parent msg 1478)
+  s+='<rect class="namecol" x="'+(R0+12)+'" y="'+(TOP-3)+'" width="'+(W-R0-16)+'" height="'+(rows.length*LH+2)+'" rx="12" style="fill:var(--card,#141d33)" fill-opacity=".94" stroke="rgba(255,255,255,.09)"/>';
   rows.forEach(function(r,i){var y=TOP+i*LH;
     if(r.me)s+='<rect x="4" y="'+(y+1)+'" width="'+(W-8)+'" height="'+(LH-2)+'" rx="12" fill="rgba('+AR+',.10)" stroke="rgba('+AR+',.55)"/>';
     s+='<rect x="'+(X0-6)+'" y="'+(y+10)+'" width="'+(R0-X0+14)+'" height="26" rx="13" fill="#1a2747"'+(C.sceneBg?' fill-opacity=".78"':'')+'/>'+
@@ -2567,7 +2589,7 @@ function road(rows){
     var nx=W-12-(r.on===undefined?0:13);
     if(r.on!==undefined)s+='<circle class="odot'+(r.on?' on':'')+'" cx="'+(W-14)+'" cy="'+(y+15)+'" r="4.5" fill="'+(r.on?"#2fd26f":"#e5484d")+'" stroke="rgba(0,0,0,.35)" stroke-width="1"><title>'+(r.on?"מחובר/ת עכשיו":"לא מחובר/ת")+'</title></circle>';
     s+='<text x="'+nx+'" y="'+(y+21)+'" direction="rtl" font-size="17" font-weight="'+(r.me?800:600)+'" fill="'+(r.me?A:"#f1f5ff")+'">'+esc(short(r.n))+'</text>'+
-       '<text x="'+nx+'" y="'+(y+38)+'" direction="rtl" font-size="12.5" fill="#9fb0cf">'+r.c+' נק׳'+(lap?' · סיבוב '+(lap+1):'')+'</text>';
+       '<text x="'+nx+'" y="'+(y+38)+'" direction="rtl" font-size="12" fill="#a9b8d6">'+r.c+' נק׳'+(lap?' · סיבוב '+(lap+1):'')+'</text>';
     s+='<g class="bk" data-k="'+esc(r.n)+(r.me?'|me':'')+'" data-c="'+r.c+'" data-y="'+y+'">';
     if(r.me)s+='<circle cx="'+x+'" cy="'+(y+21)+'" r="17" fill="rgba('+AR+',.45)" filter="url(#glow)"/>';
     s+='<g transform="translate('+(x+22)+' '+(y+6)+') scale(-0.92 0.92)">'+C.vehicle(r.v,r.me?A:r.v==="g"?"#ff8cc4":"#7fa6ff")+'</g></g>'});
@@ -2713,6 +2735,9 @@ C.sceneBg=function(lap,W,H){
   return '<defs><linearGradient id="scShade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#070d1d" stop-opacity=".05"/><stop offset=".55" stop-color="#070d1d" stop-opacity=".35"/><stop offset="1" stop-color="#070d1d" stop-opacity=".6"/></linearGradient></defs>'+
     '<rect width="'+W+'" height="'+H+'" fill="#0a1226"/>'+
     '<image href="'+SC[n]+'" x="0" y="'+y+'" width="'+W+'" height="'+ih+'" preserveAspectRatio="xMidYMax slice"/>'+
+    // a taller track than the picture: the picture's lower edge fades into the night colour (parent msg 1478)
+    (H>ih?'<linearGradient id="scFade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0a1226" stop-opacity="0"/><stop offset="1" stop-color="#0a1226"/></linearGradient>'+
+      '<rect y="'+(ih-90)+'" width="'+W+'" height="90" fill="url(#scFade)"/><rect y="'+(ih-.5)+'" width="'+W+'" height="'+(H-ih+.5)+'" fill="#0a1226"/>':'')+
     '<rect width="'+W+'" height="'+H+'" fill="url(#scShade)"/>'+
     '<text x="'+(W-10)+'" y="20" direction="rtl" font-size="12.5" font-weight="700" fill="#c9d6f2" opacity=".9">סיבוב '+(lap+1)+' · '+HE[n]+' '+EM[n]+'</text>';
 };
