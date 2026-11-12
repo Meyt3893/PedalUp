@@ -183,7 +183,6 @@ var COLS=[
    h:function(p){return p.last_login_at?'<span title="'+esc(full(p.last_login_at))+'">'+esc(ago(p.last_login_at))+'</span>':'<span class="mut">—</span>'}},
   {k:"cnt",t:"כניסות",num:1,v:function(p){return p.login_count||0},h:function(p){return String(p.login_count||0)}},
   {k:"cls",t:"כיתה",v:function(p){return p.class_name||""},h:function(p){return p.class?'<span class="ctag">'+esc(p.class_name||p.class)+'</span>':'<span class="mut">—</span>'}},
-  {k:"cp",t:"נק׳ כיתה",num:1,v:function(p){return p.class?p.class_points:-1},h:function(p){return p.class?String(p.class_points||0):'<span class="mut">—</span>'}},
   {k:"pts",t:"נקודות",num:1,v:function(p){return p.points||0},h:function(p){return String(p.points||0)}},
   {k:"reg",t:"נרשם/ה",v:function(p){return ms(p.created_at)},h:function(p){return '<span title="'+esc(full(p.created_at))+'">'+esc(ago(p.created_at))+'</span>'}}
 ];
