@@ -84,9 +84,9 @@ input.ltr{direction:ltr;text-align:left}
 <body>
 <div class="wrap">
   <header>
-    <h1>📊 ניהול <span>PedalUp</span></h1>
+    <h1>ניהול <span>PedalUp</span> 📊</h1>
     <button class="ibtn hide" id="bRefresh" aria-label="רענון" title="רענון"><span class="ic">🔄</span></button>
-    <a class="ibtn" href="./" title="למשחק">🚲 למשחק</a>
+    <a class="ibtn" href="./" title="למשחק">למשחק 🚲</a>
   </header>
 
   <div id="wait" class="card empty">טוען… 🚲</div>
@@ -109,7 +109,7 @@ input.ltr{direction:ltr;text-align:left}
     <div class="big">🙈</div>
     <h2 style="justify-content:center">אין הרשאה</h2>
     <p class="mut">העמוד הזה מיועד למנהלי האתר בלבד. אפשר לחזור למשחק ולהמשיך לרכוב 🚲</p>
-    <p><a class="ibtn" href="./">🚲 חזרה למשחק</a></p>
+    <p><a class="ibtn" href="./">חזרה למשחק 🚲</a></p>
     <p><button class="ibtn" id="bOther" style="margin:0 auto">כניסה עם משתמש אחר</button></p>
   </div>
 
@@ -122,21 +122,21 @@ input.ltr{direction:ltr;text-align:left}
     <div class="upd" id="upd"></div>
 
     <div class="card">
-      <h2>🚴 מי משתמש באתר <small id="pCount"></small></h2>
+      <h2>מי משתמש באתר 🚴 <small id="pCount"></small></h2>
       <div class="tw">
         <table>
           <thead><tr id="thead"></tr></thead>
           <tbody id="tbody"></tbody>
         </table>
       </div>
-      <p class="hint" style="margin:10px 0 0">🟢 פעיל ב-24 השעות האחרונות · 🔵 השבוע. "פעילות" היא פתיחת המשחק או תשובה שנשמרה. המעקב התחיל ב-9.11.2026, ולכן למשתמשים ותיקים אין עדיין נתונים מלפני כן.</p>
+      <p class="hint" style="margin:10px 0 0">פעיל ב-24 השעות האחרונות 🟢 · השבוע 🔵. "פעילות" היא פתיחת המשחק או תשובה שנשמרה. המעקב התחיל ב-9.11.2026, ולכן למשתמשים ותיקים אין עדיין נתונים מלפני כן.</p>
     </div>
 
     <div class="card">
-      <h2>🏫 כיתות</h2>
+      <h2>כיתות 🏫</h2>
       <div id="classes"></div>
       <form class="newc" id="cForm" novalidate>
-        <h3>➕ כיתה חדשה</h3>
+        <h3>כיתה חדשה ➕</h3>
         <div><label for="cName">שם הכיתה</label><input id="cName" maxlength="40" placeholder="למשל: ה'2 דרכי"></div>
         <div><label for="cCode">קוד הצטרפות</label><input id="cCode" maxlength="24" autocapitalize="characters" spellcheck="false" placeholder="למשל: ה2דרכי">
           <div class="hint">3–20 אותיות או ספרות. רווחים, מקפים וגרשים לא נחשבים</div></div>
@@ -176,7 +176,7 @@ function ms(t){return t?new Date(t).getTime():0}
 var COLS=[
   {k:"name",t:"שם",cls:"who",v:function(p){return p.child_name},
    h:function(p){var a=ms(act(p)),age=Date.now()+skew-a,d=a&&age<864e5?"d1":a&&age<6048e5?"d2":"";
-     return '<span class="dot '+d+'"></span><b>'+(p.gender==="g"?"👧 ":"👦 ")+esc(p.child_name)+'</b><small>'+esc(p.username)+'</small>'}},
+     return '<span class="dot '+d+'"></span><b>'+esc(p.child_name)+(p.gender==="g"?" 👧":" 👦")+'</b><small>'+esc(p.username)+'</small>'}},
   {k:"act",t:"פעילות אחרונה",v:function(p){return ms(act(p))},
    h:function(p){var a=act(p);return a?'<span title="'+esc(full(a))+'">'+esc(ago(a))+'</span>':'<span class="mut">—</span>'}},
   {k:"login",t:"כניסה אחרונה",v:function(p){return ms(p.last_login_at)},
@@ -244,7 +244,7 @@ $("cForm").addEventListener("submit",function(e){e.preventDefault();
   m.className="msg";if(!name){m.textContent=CERR.bad_name;$("cName").focus();return}if(!code){m.textContent="מה קוד ההצטרפות?";$("cCode").focus();return}
   $("cGo").disabled=true;m.textContent="";
   rpc("pp_admin_create_class",{p_token:token,p_code:code,p_name:name,p_label:label||null}).then(function(j){$("cGo").disabled=false;
-    if(j&&j.ok){m.className="msg ok";m.textContent="✅ הכיתה נוצרה. קוד ההצטרפות: "+j.code;$("cCode").value=$("cName").value=$("cLabel").value="";load(true);return}
+    if(j&&j.ok){m.className="msg ok";m.textContent="הכיתה נוצרה ✅ קוד ההצטרפות: "+j.code;$("cCode").value=$("cName").value=$("cLabel").value="";load(true);return}
     m.textContent=CERR[j&&j.error]||"משהו השתבש. ננסה שוב 🙏";if(j&&j.error==="no_session")load();
   }).catch(function(){$("cGo").disabled=false;m.textContent="אין חיבור לאינטרנט כרגע 🙏"});
 });
